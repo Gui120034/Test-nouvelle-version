@@ -1870,19 +1870,45 @@ let currentUserId = null;
 
 function initFirebase() {
   const statusEl = document.getElementById('loginFirebaseStatus');
+  const errorBanner = document.getElementById('fbLoadError');
+
   const setStatus = (msg, color) => {
     if (statusEl) statusEl.innerHTML = '<span style="color:' + color + ';">' + msg + '</span>';
   };
 
-  // Scripts non chargés ?
+  const showErrorBanner = (msg) => {
+    if (errorBanner) {
+      errorBanner.style.display = 'block';
+      errorBanner.innerHTML = '⚠️ ' + msg +
+        '<br><span style="font-size:0.5rem;margin-top:5px;display:block;">' +
+        'Utilise VS Code + Live Server, ou héberge sur Netlify/GitHub Pages.' +
+        '</span>' +
+        '<button onclick="this.parentElement.style.display=\'none\'" ' +
+        'style="margin-top:8px;padding:4px 12px;font-family:\'Press Start 2P\',cursive;' +
+        'font-size:0.45rem;background:#7f1d1d;border:1px solid #fca5a5;border-radius:6px;' +
+        'color:#fca5a5;cursor:pointer;">✖ Fermer</button>';
+    }
+  };
+
+  // ── Vérification 1 : scripts CDN non chargés ──────────────────
   if (typeof firebase === "undefined" || window._fbCDNFailed) {
-    console.error("❌ Scripts Firebase non chargés — Internet requis, ou ouvre via un serveur (pas double-clic)");
-    setStatus("❌ Firebase non chargé — vérifie ta connexion internet", "#ef4444");
+    const isFile = window.location.protocol === 'file:';
+    const reason = isFile
+      ? 'Fichier ouvert en file:// — utilise un serveur web (Live Server, XAMPP…)'
+      : 'Scripts Firebase non chargés — vérifie ta connexion internet';
+    console.error("❌", reason);
+    setStatus("❌ " + reason, "#ef4444");
+    showErrorBanner(reason);
     firebaseReady = false;
     return;
   }
 
   try {
+    // ── Vérification 2 : config Firebase présente ──────────────
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'VOTRE_API_KEY') {
+      throw new Error('Config Firebase manquante — remplace firebaseConfig dans le code');
+    }
+
     // Éviter double init si rechargement
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
@@ -1893,15 +1919,16 @@ function initFirebase() {
     console.log("✅ Firebase initialisé:", firebaseConfig.projectId);
     setStatus("🔥 Firebase prêt — connecte-toi !", "#10b981");
 
-    // Surveiller l'état de connexion + restauration de session
+    // Cacher le bandeau d'erreur si Firebase réussit (après un retry)
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    // ── Surveiller l'état de connexion + restauration de session ──
     auth.onAuthStateChanged(async (user) => {
       const loginScreen = document.getElementById('loginScreen');
       const isOnLogin = loginScreen && loginScreen.classList.contains('active');
-      // Ne pas interférer si un login est en cours (bouton désactivé)
       const loginBtn = document.getElementById('loginBtn');
       const loginInProgress = loginBtn && loginBtn.disabled;
       if (user && !player && !currentUserId && !loginInProgress) {
-        // Session Firebase persistante détectée sans login manuel → déconnecter
         auth.signOut();
         if (isOnLogin) setStatus("🔥 Firebase prêt — reconnecte-toi !", "#10b981");
       } else if (isOnLogin && !loginInProgress) {
@@ -1913,9 +1940,21 @@ function initFirebase() {
       }
     });
 
+    // ── Vérification 3 : timeout connexion (8s) ───────────────
+    setTimeout(() => {
+      if (!firebaseReady) return;
+      database.ref('.info/connected').once('value').then(snap => {
+        if (!snap.val()) {
+          console.warn("⚠️ Firebase chargé mais pas de connexion réseau");
+          setStatus("⚠️ Hors ligne — mode local activé", "#f59e0b");
+        }
+      }).catch(() => {});
+    }, 8000);
+
   } catch(e) {
     console.error("❌ Firebase ERREUR:", e.message);
-    setStatus("❌ Erreur Firebase: " + e.message, "#ef4444");
+    setStatus("❌ Erreur Firebase : " + e.message, "#ef4444");
+    showErrorBanner(e.message);
     firebaseReady = false;
   }
 }
