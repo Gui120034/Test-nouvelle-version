@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 
 <!-- SEO & compatibilité navigateurs -->
@@ -34,7 +35,19 @@
 <title>Schoolmes - Aventure Éducative</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
+<!-- Polyfill pour vieux navigateurs -->
+<script>
+// Polyfill Promise pour IE
+if (typeof Promise === 'undefined') {
+  document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.2.8/es6-promise.auto.min.js"><\/script>');
+}
+</script>
+
 <!-- Firebase SDK v9 compat — chargement robuste avec CDN alternatif -->
+<script>
+// Pre-check: on vérifie que l'internet est dispo
+window._fbLoadAttempt = 0;
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"
   onerror="window._fbCDNFailed=true"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"
@@ -42,67 +55,26 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"
   onerror="window._fbCDNFailed=true"></script>
 <style>
-/* =============================================
-   VARIABLES DE MISE À L'ÉCHELLE FLUIDE
-   Tout le jeu s'adapte à la taille de l'écran
-   via clamp(min, valeur-fluide, max)
-   ============================================= */
-:root {
-  /* Taille de base fluide : 1 "unité" = ~1% de la largeur viewport, entre 12px et 20px */
-  --u: clamp(12px, 1.5vw, 20px);
-
-  /* Tailles de texte */
-  --text-xs:   clamp(0.38rem, 0.8vw,  0.55rem);
-  --text-sm:   clamp(0.45rem, 1vw,    0.70rem);
-  --text-base: clamp(0.55rem, 1.2vw,  0.85rem);
-  --text-lg:   clamp(0.70rem, 1.6vw,  1.1rem);
-  --text-xl:   clamp(1rem,    2.5vw,  1.8rem);
-  --text-2xl:  clamp(1.3rem,  3.5vw,  2.5rem);
-  --text-3xl:  clamp(1.6rem,  4.5vw,  3.2rem);
-
-  /* Espacements */
-  --gap-xs:  clamp(4px,  0.5vw, 8px);
-  --gap-sm:  clamp(6px,  0.8vw, 12px);
-  --gap-md:  clamp(10px, 1.2vw, 20px);
-  --gap-lg:  clamp(14px, 2vw,   30px);
-  --gap-xl:  clamp(18px, 3vw,   40px);
-
-  /* Padding des blocs */
-  --pad-sm:  clamp(8px,  1vw,  16px);
-  --pad-md:  clamp(12px, 1.8vw, 25px);
-  --pad-lg:  clamp(18px, 2.5vw, 35px);
-
-  /* Radius */
-  --radius-sm:  clamp(6px,  0.8vw, 10px);
-  --radius-md:  clamp(10px, 1.2vw, 15px);
-  --radius-lg:  clamp(14px, 1.8vw, 20px);
-
-  /* Boutons */
-  --btn-pad-v: clamp(8px,  1.1vw, 14px);
-  --btn-pad-h: clamp(12px, 1.8vw, 26px);
-  --btn-font:  clamp(0.42rem, 0.9vw, 0.72rem);
-
-  /* Input */
-  --input-font: clamp(0.45rem, 0.9vw, 0.70rem);
-  --input-pad:  clamp(9px, 1.2vw, 14px);
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
 
 body {
   font-family: 'Press Start 2P', cursive;
+  background: -webkit-linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #ec4899 100%);
+  background: -moz-linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #ec4899 100%);
+  background: -o-linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #ec4899 100%);
   background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #ec4899 100%);
   color: white;
   overflow-x: hidden;
   min-height: 100vh;
   -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 .screen {
   max-width: 1200px;
-  margin: var(--gap-md) auto;
-  padding: var(--pad-lg);
+  margin: 20px auto;
+  padding: 25px;
   background: rgba(0,0,0,0.7);
   border-radius: 20px;
   border: 4px solid #fbbf24;
@@ -113,108 +85,123 @@ body {
 .screen.active { display: block; }
 
 .game-title {
-  font-size: var(--text-2xl);
+  font-size: 2.5rem;
   text-align: center;
   color: #fbbf24;
-  margin-bottom: var(--gap-lg);
+  margin-bottom: 30px;
   text-shadow: 0 0 20px rgba(251,191,36,0.8);
 }
 
 button {
-  padding: var(--btn-pad-v) var(--btn-pad-h);
+  padding: 12px 24px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   font-family: 'Press Start 2P', cursive;
-  font-size: var(--btn-font);
+  font-size: 0.7rem;
   cursor: pointer;
-  margin: var(--gap-xs);
+  margin: 8px;
+  background: -webkit-linear-gradient(135deg, #10b981, #059669);
+  background: -moz-linear-gradient(135deg, #10b981, #059669);
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
   transition: all 0.3s;
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
 }
 
 button:hover {
+  -webkit-transform: translateY(-3px);
+  -moz-transform: translateY(-3px);
+  -ms-transform: translateY(-3px);
   transform: translateY(-3px);
+  -webkit-box-shadow: 0 6px 20px rgba(16,185,129,0.6);
   box-shadow: 0 6px 20px rgba(16,185,129,0.6);
 }
 
-button.primary { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-button.danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-button.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+button.primary { background: -webkit-linear-gradient(135deg, #3b82f6, #2563eb); background: linear-gradient(135deg, #3b82f6, #2563eb); }
+button.danger { background: -webkit-linear-gradient(135deg, #ef4444, #dc2626); background: linear-gradient(135deg, #ef4444, #dc2626); }
+button.gold { background: -webkit-linear-gradient(135deg, #fbbf24, #f59e0b); background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 input {
-  padding: var(--input-pad);
+  padding: 12px;
   border: 2px solid #fbbf24;
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   background: rgba(0,0,0,0.5);
   color: white;
   font-family: 'Press Start 2P', cursive;
-  font-size: var(--input-font);
-  margin: var(--gap-xs);
+  font-size: 0.7rem;
+  margin: 8px;
   width: 100%;
   max-width: 400px;
 }
 
 .input-group {
-  margin: var(--gap-md) auto;
+  margin: 20px auto;
   max-width: 450px;
   text-align: center;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: var(--gap-xs);
+  margin-bottom: 8px;
   color: #fbbf24;
-  font-size: var(--text-sm);
+  font-size: 0.8rem;
 }
 
 .stats-bar {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
-  padding: var(--pad-sm);
+  padding: 15px;
   background: rgba(0,0,0,0.5);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--gap-md);
+  border-radius: 15px;
+  margin-bottom: 20px;
 }
 
 .stat {
   text-align: center;
-  padding: var(--gap-sm);
-  min-width: clamp(90px, 12vw, 150px);
+  padding: 10px;
+  min-width: 150px;
 }
 
 .stat-label {
-  font-size: var(--text-xs);
+  font-size: 0.6rem;
   color: #9ca3af;
-  margin-bottom: var(--gap-xs);
+  margin-bottom: 5px;
 }
 
 .stat-value {
-  font-size: var(--text-lg);
+  font-size: 1rem;
   color: #fbbf24;
 }
 
 .xp-bar {
   width: 100%;
-  height: clamp(16px, 2vw, 25px);
+  height: 25px;
   background: rgba(0,0,0,0.7);
   border-radius: 15px;
   overflow: hidden;
   border: 2px solid #10b981;
-  margin-top: var(--gap-xs);
+  margin-top: 10px;
 }
 
 .xp-fill {
   height: 100%;
+  background: -webkit-linear-gradient(90deg, #10b981, #059669);
+  background: -moz-linear-gradient(90deg, #10b981, #059669);
   background: linear-gradient(90deg, #10b981, #059669);
+  -webkit-transition: width 0.5s;
+  -moz-transition: width 0.5s;
+  -o-transition: width 0.5s;
   transition: width 0.5s;
   text-align: center;
   line-height: 25px;
-  font-size: var(--text-xs);
+  font-size: 0.6rem;
 }
 
 #map {
@@ -227,25 +214,32 @@ input {
 .tile {
   aspect-ratio: 1;
   border-radius: 10px;
+  display: -webkit-flex;
+  display: -moz-box;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
   font-size: 1.2rem;
   border: 2px solid rgba(255,255,255,0.2);
   cursor: pointer;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
   transition: all 0.3s;
   position: relative;
 }
 
-.tile:hover { transform: scale(1.05); }
+.tile:hover { -webkit-transform: scale(1.05); -moz-transform: scale(1.05); -ms-transform: scale(1.05); transform: scale(1.05); }
 
-.tile.plains { background: linear-gradient(135deg, #065f46, #064e3b); }
-.tile.forest { background: linear-gradient(135deg, #065f46, #064e3b); }
-.tile.desert { background: linear-gradient(135deg, #d97706, #b45309); }
-.tile.snow { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
-.tile.volcano { background: linear-gradient(135deg, #dc2626, #991b1b); }
-.tile.ocean { background: linear-gradient(135deg, #1d4ed8, #1e40af); }
-.tile.boss { background: linear-gradient(135deg, #7c3aed, #6d28d9); border: 3px solid #fbbf24; }
+.tile.plains { background: -webkit-linear-gradient(135deg, #065f46, #064e3b); background: linear-gradient(135deg, #065f46, #064e3b); }
+.tile.forest { background: -webkit-linear-gradient(135deg, #065f46, #064e3b); background: linear-gradient(135deg, #065f46, #064e3b); }
+.tile.desert { background: -webkit-linear-gradient(135deg, #d97706, #b45309); background: linear-gradient(135deg, #d97706, #b45309); }
+.tile.snow { background: -webkit-linear-gradient(135deg, #0ea5e9, #0284c7); background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+.tile.volcano { background: -webkit-linear-gradient(135deg, #dc2626, #991b1b); background: linear-gradient(135deg, #dc2626, #991b1b); }
+.tile.ocean { background: -webkit-linear-gradient(135deg, #1d4ed8, #1e40af); background: linear-gradient(135deg, #1d4ed8, #1e40af); }
+.tile.boss { background: -webkit-linear-gradient(135deg, #7c3aed, #6d28d9); background: linear-gradient(135deg, #7c3aed, #6d28d9); border: 3px solid #fbbf24; }
 
 .tile.current { border: 3px solid #10b981; box-shadow: 0 0 20px #10b981; }
 .tile.locked { opacity: 0.3; cursor: not-allowed; }
@@ -268,9 +262,9 @@ input {
 }
 
 .question-text {
-  font-size: var(--text-base);
+  font-size: 0.9rem;
   line-height: 1.8;
-  margin-bottom: var(--gap-md);
+  margin-bottom: 20px;
   color: #fbbf24;
 }
 
@@ -290,14 +284,32 @@ input {
 }
 
 .shop-item:hover {
+  -webkit-transform: translateY(-5px);
+  -moz-transform: translateY(-5px);
+  -ms-transform: translateY(-5px);
   transform: translateY(-5px);
   border-color: #fbbf24;
 }
 
-.shop-item-icon { font-size: clamp(1.6rem, 3vw, 2.8rem); margin-bottom: var(--gap-xs); }
-.shop-item-name { font-size: var(--text-sm); color: #fbbf24; margin-bottom: var(--gap-xs); }
-.shop-item-desc { font-size: var(--text-xs); color: #9ca3af; margin-bottom: var(--gap-sm); line-height: 1.5; }
-.shop-item-price { font-size: var(--text-base); color: #10b981; margin-bottom: var(--gap-sm); }
+.shop-item-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.shop-item-name { font-size: 0.8rem; color: #fbbf24; margin-bottom: 8px; }
+.shop-item-desc { font-size: 0.6rem; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; }
+.shop-item-price { font-size: 0.9rem; color: #10b981; margin-bottom: 12px; }
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin: 10px 0;
+  background: rgba(0,0,0,0.5);
+  border-radius: 12px;
+  border: 2px solid rgba(251,191,36,0.3);
+}
+
+.leaderboard-item.podium {
+  background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.2));
+  border-color: #fbbf24;
+}
 
 .leaderboard-rank {
   font-size: 1.5rem;
@@ -307,15 +319,15 @@ input {
 }
 
 .leaderboard-info { flex: 1; }
-.leaderboard-name { font-size: var(--text-base); color: #fbbf24; margin-bottom: var(--gap-xs); }
-.leaderboard-stats { font-size: var(--text-xs); color: #9ca3af; }
+.leaderboard-name { font-size: 0.9rem; color: #fbbf24; margin-bottom: 5px; }
+.leaderboard-stats { font-size: 0.6rem; color: #9ca3af; }
 
 .badge {
   display: inline-block;
   padding: 6px 12px;
   margin: 4px;
   border-radius: 20px;
-  font-size: var(--text-xs);
+  font-size: 0.6rem;
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   border: 2px solid #fbbf24;
 }
@@ -375,8 +387,8 @@ input {
   border: 2px solid rgba(255,255,255,0.1);
   margin: 10px 0;
 }
-.settings-label { font-size: var(--text-sm); color: #fbbf24; }
-.settings-desc { font-size: var(--text-xs); color: #9ca3af; margin-top: var(--gap-xs); }
+.settings-label { font-size: 0.65rem; color: #fbbf24; }
+.settings-desc { font-size: 0.5rem; color: #9ca3af; margin-top: 4px; }
 .toggle-switch {
   position: relative;
   width: 52px;
@@ -477,8 +489,10 @@ body.theme-neon button { background: linear-gradient(135deg, #00ff41, #00cc33) !
 body.theme-neon .stat-value { color: #00ff41 !important; }
 
 .pixel-grid {
+  display: -ms-grid;
   display: grid;
   grid-template-columns: repeat(16, 1fr);
+  -ms-grid-columns: (1fr)[16];
   gap: 2px;
   width: 352px;
   height: 352px;
@@ -497,10 +511,14 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   aspect-ratio: 1;
   cursor: crosshair;
   border-radius: 2px;
+  -webkit-transition: filter 0.1s;
+  -moz-transition: filter 0.1s;
+  -o-transition: filter 0.1s;
   transition: filter 0.1s;
 }
 
 .pixel:hover {
+  -webkit-filter: brightness(1.3);
   filter: brightness(1.3);
   outline: 1px solid rgba(255,255,255,0.8);
 }
@@ -549,20 +567,30 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 
 .bonus-button {
   padding: 10px 20px;
+  background: -webkit-linear-gradient(135deg, #8b5cf6, #7c3aed);
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: white;
   border: 2px solid #fbbf24;
   border-radius: 10px;
-  font-size: var(--text-sm);
+  font-size: 0.7rem;
   cursor: pointer;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
   transition: all 0.3s;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
-  gap: var(--gap-xs);
+  gap: 8px;
 }
 
 .bonus-button:hover {
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
   transform: scale(1.05);
+  -webkit-box-shadow: 0 0 20px rgba(139,92,246,0.8);
   box-shadow: 0 0 20px rgba(139,92,246,0.8);
 }
 
@@ -587,28 +615,38 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 
 .choice-btn {
   padding: 15px 20px;
+  background: -webkit-linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.3));
   background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.3));
   border: 2px solid #3b82f6;
   border-radius: 12px;
   color: white;
   font-family: 'Press Start 2P', cursive;
-  font-size: var(--text-sm);
+  font-size: 0.65rem;
   cursor: pointer;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
   transition: all 0.3s;
   text-align: left;
   line-height: 1.6;
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
   width: 100%;
 }
 
 .choice-btn:hover {
+  background: -webkit-linear-gradient(135deg, rgba(59,130,246,0.5), rgba(37,99,235,0.5));
   background: linear-gradient(135deg, rgba(59,130,246,0.5), rgba(37,99,235,0.5));
   border-color: #fbbf24;
+  -webkit-transform: translateX(5px);
+  -moz-transform: translateX(5px);
+  -ms-transform: translateX(5px);
   transform: translateX(5px);
 }
 
 .choice-btn.selected {
+  background: -webkit-linear-gradient(135deg, rgba(251,191,36,0.4), rgba(245,158,11,0.4));
   background: linear-gradient(135deg, rgba(251,191,36,0.4), rgba(245,158,11,0.4));
   border-color: #fbbf24;
 }
@@ -626,7 +664,7 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 }
 
 .heart {
-  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  font-size: 2rem;
   transition: all 0.3s;
 }
 
@@ -635,40 +673,11 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   filter: grayscale(100%);
 }
 
-/* ============================================================
-   RESPONSIVE STRUCTUREL (le fluide est géré par clamp() ci-dessus)
-   ============================================================ */
-
-/* Carte 5 colonnes sur tablette */
 @media (max-width: 768px) {
-  #map { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .game-title { font-size: 1.5rem; }
+  button { font-size: 0.6rem; padding: 10px 18px; }
+  #map { grid-template-columns: repeat(5, 1fr); }
   .bonus-bar { flex-direction: column; }
-  .stats-bar { flex-direction: column; align-items: stretch; }
-  .stat { display: flex; justify-content: space-between; align-items: center; min-width: unset; }
-  .stat-label { margin-bottom: 0; margin-right: 8px; }
-  .orbit-icon { display: none; }
-  .login-emoji-row { flex-wrap: wrap; }
-}
-
-/* Carte 4 colonnes sur mobile */
-@media (max-width: 540px) {
-  .screen { margin: 6px; border-radius: 12px; border-width: 3px; }
-  #map { grid-template-columns: repeat(4, 1fr); gap: 4px; }
-  .shop-grid { grid-template-columns: 1fr; }
-  .duel-hud { flex-wrap: wrap; justify-content: center; }
-}
-
-/* Carte 3 colonnes sur très petit écran */
-@media (max-width: 380px) {
-  .screen { margin: 4px; }
-  #map { grid-template-columns: repeat(3, 1fr); }
-  .login-emoji-row { display: none; }
-}
-
-/* Grand écran */
-@media (min-width: 1200px) {
-  .screen { padding: var(--pad-lg); }
-  #map { grid-template-columns: repeat(10, 1fr); }
 }
 
 /* CLASSEMENT EN LIGNE */
@@ -697,9 +706,9 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 .lb-rank { font-size: 1.4rem; min-width: 55px; text-align: center; }
 .lb-avatar { width: 40px; height: 40px; border-radius: 8px; margin-right: 12px; background: #222; border: 2px solid #fbbf24; }
 .lb-info { flex: 1; }
-.lb-name { font-size: var(--text-sm); color: #fbbf24; margin-bottom: var(--gap-xs); }
-.lb-stats { font-size: var(--text-xs); color: #9ca3af; }
-.lb-score { font-size: var(--text-base); color: #10b981; text-align: right; }
+.lb-name { font-size: 0.75rem; color: #fbbf24; margin-bottom: 4px; }
+.lb-stats { font-size: 0.55rem; color: #9ca3af; }
+.lb-score { font-size: 0.8rem; color: #10b981; text-align: right; }
 
 /* ADMIN PANEL AMÉLIORÉ */
 .admin-section {
@@ -709,7 +718,7 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   padding: 20px;
   margin: 15px 0;
 }
-.admin-section h3 { color: #fbbf24; font-size: var(--text-sm); margin-bottom: var(--gap-sm); }
+.admin-section h3 { color: #fbbf24; font-size: 0.8rem; margin-bottom: 15px; }
 .admin-player-list { max-height: 300px; overflow-y: auto; margin: 10px 0; }
 .admin-player-row {
   display: flex;
@@ -720,7 +729,7 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   background: rgba(0,0,0,0.4);
   border-radius: 8px;
   border: 1px solid rgba(251,191,36,0.2);
-  font-size: var(--text-xs);
+  font-size: 0.6rem;
 }
 .admin-player-row:hover { border-color: #fbbf24; }
 
@@ -757,7 +766,7 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   border: 3px solid #fbbf24;
   border-radius: 15px;
   padding: 10px 18px;
-  font-size: clamp(0.55rem, 1.2vw, 0.8rem);
+  font-size: 0.75rem;
   font-family: 'Press Start 2P', cursive;
   color: white;
   animation: comboPulse 0.5s ease-out;
@@ -790,9 +799,9 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 }
 #timerText {
   text-align: center;
-  font-size: var(--text-xs);
+  font-size: 0.6rem;
   color: #fbbf24;
-  margin-bottom: var(--gap-xs);
+  margin-bottom: 5px;
 }
 
 /* FLOATING PARTICLES */
@@ -1036,8 +1045,8 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 
 .pvp-avatar { width: 48px; height: 48px; border-radius: 10px; border: 2px solid #fbbf24; flex-shrink: 0; background: #111; }
 .pvp-info { flex: 1; }
-.pvp-name { font-size: var(--text-sm); color: #fbbf24; margin-bottom: var(--gap-xs); }
-.pvp-stats { font-size: var(--text-xs); color: #9ca3af; }
+.pvp-name { font-size: 0.75rem; color: #fbbf24; margin-bottom: 4px; }
+.pvp-stats { font-size: 0.55rem; color: #9ca3af; }
 .pvp-score { font-size: 1.1rem; color: #10b981; text-align: right; min-width: 50px; }
 
 /* VS divider */
@@ -1067,8 +1076,8 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   gap: 10px;
 }
 .duel-side { text-align: center; flex: 1; }
-.duel-side-name { font-size: var(--text-xs); color: #9ca3af; margin-bottom: var(--gap-xs); }
-.duel-side-score { font-size: clamp(0.85rem, 2vw, 1.3rem); color: #10b981; }
+.duel-side-name { font-size: 0.5rem; color: #9ca3af; margin-bottom: 4px; }
+.duel-side-score { font-size: 1.2rem; color: #10b981; }
 .duel-sep { font-size: 0.9rem; color: #6366f1; padding: 0 8px; }
 
 /* Duel timer ring */
@@ -1147,7 +1156,7 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 }
 .room-card:hover { border-color: #6366f1; background: rgba(99,102,241,0.1); transform: translateX(4px); }
 .room-card.full { opacity: 0.5; cursor: not-allowed; }
-.room-status { display: flex; align-items: center; gap: var(--gap-xs); font-size: var(--text-xs); }
+.room-status { display: flex; align-items: center; gap: 6px; font-size: 0.55rem; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; }
 .status-dot.open { background: #10b981; box-shadow: 0 0 6px #10b981; animation: dotPulse 1.5s infinite; }
 .status-dot.full { background: #ef4444; }
@@ -1186,982 +1195,13 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   font-size: 0.5rem;
   z-index: 9999;
   opacity: 0;
+  -webkit-transition: opacity 0.4s;
+  -moz-transition: opacity 0.4s;
+  -o-transition: opacity 0.4s;
   transition: opacity 0.4s;
   pointer-events: none;
 }
 #autosaveIndicator.show { opacity: 1; }
-
-/* ===== LOGIN SCREEN REDESIGN ===== */
-#loginScreen {
-  position: relative;
-  overflow: hidden;
-  min-height: 90vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 25px;
-  background: transparent;
-}
-
-/* Quand loginScreen est actif, on repasse en flex */
-#loginScreen.active {
-  display: flex;
-}
-
-/* Canvas d'étoiles */
-#loginStarsCanvas {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Lueur centrale */
-#loginScreen::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(ellipse, rgba(124,58,237,0.18) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Carte principale */
-.login-card {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 440px;
-  background: rgba(10, 8, 30, 0.82);
-  border: 2px solid rgba(251,191,36,0.6);
-  border-radius: 20px;
-  padding: 40px 36px 32px;
-  box-shadow:
-    0 0 0 1px rgba(124,58,237,0.3),
-    0 0 40px rgba(251,191,36,0.12),
-    0 0 80px rgba(124,58,237,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-  backdrop-filter: blur(12px);
-  animation: loginCardIn 0.6s cubic-bezier(0.34,1.4,0.64,1) both;
-}
-@keyframes loginCardIn {
-  from { opacity:0; transform: translateY(32px) scale(0.96); }
-  to   { opacity:1; transform: translateY(0) scale(1); }
-}
-
-/* Coins pixel décoratifs */
-.login-card::before,
-.login-card::after {
-  content: '';
-  position: absolute;
-  width: 10px; height: 10px;
-  background: #fbbf24;
-}
-.login-card::before { top: -2px; left: -2px; border-radius: 0 0 4px 0; }
-.login-card::after  { bottom: -2px; right: -2px; border-radius: 4px 0 0 0; }
-
-/* Titre glitch */
-.login-title-wrap {
-  text-align: center;
-  margin-bottom: 6px;
-}
-.login-title {
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(1.3rem, 4vw, 1.9rem);
-  color: #fbbf24;
-  text-shadow:
-    0 0 10px rgba(251,191,36,0.7),
-    0 0 30px rgba(251,191,36,0.3);
-  display: inline-block;
-  animation: titleFloat 3s ease-in-out infinite;
-}
-@keyframes titleFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
-}
-.login-glitch {
-  position: relative;
-  display: inline-block;
-}
-.login-glitch::before,
-.login-glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  font-family: 'Press Start 2P', cursive;
-  font-size: inherit;
-  color: #fbbf24;
-}
-.login-glitch::before {
-  color: #ec4899;
-  clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
-  animation: glitch1 4s infinite;
-}
-.login-glitch::after {
-  color: #7c3aed;
-  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-  animation: glitch2 4s infinite 0.5s;
-}
-@keyframes glitch1 {
-  0%,88%,100% { transform: none; opacity:0; }
-  89%  { transform: translateX(-3px); opacity:1; }
-  91%  { transform: translateX(3px); opacity:1; }
-  93%  { transform: none; opacity:0; }
-}
-@keyframes glitch2 {
-  0%,88%,100% { transform: none; opacity:0; }
-  89%  { transform: translateX(3px); opacity:1; }
-  91%  { transform: translateX(-2px); opacity:1; }
-  93%  { transform: none; opacity:0; }
-}
-
-/* Sous-titre */
-.login-subtitle {
-  text-align: center;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.5rem;
-  color: #6366f1;
-  letter-spacing: 0.08em;
-  margin-bottom: 30px;
-  opacity: 0.85;
-}
-
-/* Séparateur pixel */
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 28px;
-  color: rgba(251,191,36,0.3);
-  font-size: 0.45rem;
-}
-.login-divider::before,
-.login-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent);
-}
-
-/* Champs de saisie */
-.login-field {
-  margin-bottom: 20px;
-}
-.login-field label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.55rem;
-  color: #fbbf24;
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-.login-input-wrap {
-  position: relative;
-}
-.login-input-wrap input {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 14px 16px 14px 42px;
-  background: rgba(0,0,0,0.55);
-  border: 2px solid rgba(99,102,241,0.4);
-  border-radius: 10px;
-  color: #fff;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.65rem;
-  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
-  box-sizing: border-box;
-}
-.login-input-wrap input:focus {
-  outline: none;
-  border-color: #fbbf24;
-  background: rgba(251,191,36,0.06);
-  box-shadow: 0 0 0 3px rgba(251,191,36,0.12), 0 0 20px rgba(251,191,36,0.08);
-}
-.login-input-wrap input::placeholder { color: rgba(156,163,175,0.6); }
-.login-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  pointer-events: none;
-}
-
-/* Bouton de connexion */
-.login-btn-wrap {
-  margin-top: 28px;
-}
-#loginBtn {
-  width: 100%;
-  margin: 0;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 50%, #ec4899 100%);
-  background-size: 200% 200%;
-  color: #fff;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.7rem;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: transform 0.2s, box-shadow 0.2s;
-  animation: btnGradient 4s ease infinite;
-  box-shadow: 0 4px 24px rgba(124,58,237,0.4);
-  position: relative;
-  overflow: hidden;
-}
-#loginBtn::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.5s;
-}
-#loginBtn:hover::after { left: 160%; }
-#loginBtn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 32px rgba(124,58,237,0.6), 0 0 20px rgba(236,72,153,0.3);
-}
-#loginBtn:active { transform: translateY(0); }
-@keyframes btnGradient {
-  0%,100% { background-position: 0% 50%; }
-  50%      { background-position: 100% 50%; }
-}
-
-/* Statut Firebase */
-#loginFirebaseStatus {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 0.48rem;
-  color: #6b7280;
-  font-family: 'Press Start 2P', cursive;
-}
-
-/* Pixel mascot row */
-.login-mascots {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 22px;
-  font-size: 1.6rem;
-  animation: mascotsBounce 2.5s ease-in-out infinite;
-}
-@keyframes mascotsBounce {
-  0%,100% { transform: translateY(0); }
-  25%      { transform: translateY(-5px); }
-  75%      { transform: translateY(2px); }
-}
-.mascot-item {
-  display: inline-block;
-  filter: drop-shadow(0 0 6px rgba(251,191,36,0.5));
-}
-.mascot-item:nth-child(2) { animation: mascotBounce2 2.5s ease-in-out infinite 0.3s; }
-.mascot-item:nth-child(3) { animation: mascotBounce2 2.5s ease-in-out infinite 0.6s; }
-@keyframes mascotBounce2 {
-  0%,100% { transform: translateY(0); }
-  25%      { transform: translateY(-8px); }
-  75%      { transform: translateY(3px); }
-}
-
-/* Badge compte */
-.login-badge-row {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-.login-badge {
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.42rem;
-  padding: 5px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: #9ca3af;
-}
-.login-badge span { color: #10b981; }
-
-/* ======================================
-   LOGIN SCREEN — ANIMATED OVERHAUL
-   ====================================== */
-
-/* Fond du login : étoiles flottantes via pseudo-éléments */
-#loginScreen {
-  position: relative;
-  overflow: hidden;
-  /* Presque pleine largeur, hauteur automatique selon le contenu */
-  max-width: 96vw !important;
-  width: 96vw !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-top: clamp(20px, 3vh, 40px);
-  padding-bottom: clamp(20px, 3vh, 40px);
-}
-
-/* Annuler max-width:1200px du .screen générique pour le login */
-#loginScreen.screen {
-  max-width: 96vw;
-}
-
-/* ── Étoiles de fond ── */
-.login-star {
-  position: absolute;
-  pointer-events: none;
-  font-size: 1.1rem;
-  opacity: 0;
-  animation: starDrift linear infinite;
-  z-index: 0;
-}
-@keyframes starDrift {
-  0%   { opacity: 0; transform: translateY(0) rotate(0deg) scale(0.6); }
-  10%  { opacity: 0.6; }
-  90%  { opacity: 0.4; }
-  100% { opacity: 0; transform: translateY(-120px) rotate(360deg) scale(1.1); }
-}
-
-/* ── Lettre-par-lettre du titre ── */
-.login-letter {
-  display: inline-block;
-  animation: letterBounce 1.4s ease-in-out infinite;
-  color: #fbbf24;
-  text-shadow: 0 0 12px rgba(251,191,36,0.7), 0 0 30px rgba(251,191,36,0.3);
-}
-@keyframes letterBounce {
-  0%,100% { transform: translateY(0) rotate(0deg); }
-  30%      { transform: translateY(-10px) rotate(-4deg); }
-  60%      { transform: translateY(-4px) rotate(3deg); }
-}
-
-/* ── Icônes orbitales autour du formulaire ── */
-.login-orbit-wrap {
-  position: relative;
-  z-index: 1;
-}
-.orbit-icon {
-  position: absolute;
-  font-size: 1.4rem;
-  pointer-events: none;
-  animation: orbitSpin linear infinite;
-  transform-origin: 0 0;
-  z-index: 0;
-}
-@keyframes orbitSpin {
-  from { transform: rotate(0deg) translateX(var(--r)) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(var(--r)) rotate(-360deg); }
-}
-
-/* ── Mascotte principale qui tourne sur elle-même ── */
-.login-mascot-big {
-  display: block;
-  text-align: center;
-  font-size: clamp(2rem, 6vw, 4.5rem);
-  animation: mascotSpin 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 18px rgba(251,191,36,0.6));
-  margin: 0 auto 8px;
-  position: relative;
-  z-index: 1;
-}
-@keyframes mascotSpin {
-  0%   { transform: translateY(0) rotate(-8deg) scale(1); }
-  25%  { transform: translateY(-14px) rotate(0deg) scale(1.08); }
-  50%  { transform: translateY(-6px) rotate(8deg) scale(1.04); }
-  75%  { transform: translateY(-18px) rotate(0deg) scale(1.1); }
-  100% { transform: translateY(0) rotate(-8deg) scale(1); }
-}
-
-/* ── Ligne d'emojis qui sautent en décalé ── */
-.login-emoji-row {
-  display: flex;
-  justify-content: center;
-  gap: clamp(8px, 1.5vw, 16px);
-  margin: var(--gap-sm) 0 var(--gap-md);
-  font-size: clamp(1rem, 2.5vw, 1.6rem);
-  position: relative;
-  z-index: 1;
-}
-.login-emoji-row span {
-  display: inline-block;
-  animation: emojiJump 1.8s ease-in-out infinite;
-  filter: drop-shadow(0 0 5px rgba(251,191,36,0.4));
-}
-.login-emoji-row span:nth-child(1) { animation-delay: 0s; }
-.login-emoji-row span:nth-child(2) { animation-delay: 0.2s; }
-.login-emoji-row span:nth-child(3) { animation-delay: 0.4s; }
-.login-emoji-row span:nth-child(4) { animation-delay: 0.6s; }
-.login-emoji-row span:nth-child(5) { animation-delay: 0.8s; }
-.login-emoji-row span:nth-child(6) { animation-delay: 1.0s; }
-@keyframes emojiJump {
-  0%,100% { transform: translateY(0) scale(1); }
-  40%      { transform: translateY(-16px) scale(1.2) rotate(10deg); }
-  60%      { transform: translateY(-8px) scale(1.1) rotate(-5deg); }
-}
-
-/* ── Anneau tournant autour du bouton ── */
-.login-btn-ring {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-.login-btn-ring::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 16px;
-  background: conic-gradient(
-    from 0deg,
-    #7c3aed, #ec4899, #fbbf24, #10b981, #3b82f6, #7c3aed
-  );
-  animation: ringRotate 2.5s linear infinite;
-  z-index: -1;
-  filter: blur(3px);
-}
-@keyframes ringRotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-/* ── Formulaire carte ── */
-.login-form-card {
-  position: relative;
-  z-index: 1;
-  background: rgba(0,0,0,0.6);
-  border: 2px solid rgba(251,191,36,0.35);
-  border-radius: 18px;
-  padding: clamp(16px, 2.5vw, 32px) clamp(14px, 4vw, 48px);
-  width: 90vw;
-  max-width: 90vw;
-  margin: 0 auto;
-  backdrop-filter: blur(8px);
-  animation: cardAppear 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
-  box-shadow: 0 0 40px rgba(124,58,237,0.25), inset 0 0 30px rgba(0,0,0,0.3);
-}
-@keyframes cardAppear {
-  0% { opacity: 0; transform: translateY(30px) scale(0.9); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* ── Coins lumineux de la carte ── */
-.login-form-card::before,
-.login-form-card::after {
-  content: '';
-  position: absolute;
-  width: 10px; height: 10px;
-  background: #fbbf24;
-  box-shadow: 0 0 10px #fbbf24, 0 0 20px rgba(251,191,36,0.5);
-  animation: cornerPulse 2s ease-in-out infinite alternate;
-}
-.login-form-card::before { top: -2px; left: -2px; border-radius: 0 0 4px 0; }
-.login-form-card::after  { bottom: -2px; right: -2px; border-radius: 4px 0 0 0; }
-@keyframes cornerPulse {
-  from { opacity: 0.4; box-shadow: 0 0 6px #fbbf24; }
-  to   { opacity: 1;   box-shadow: 0 0 20px #fbbf24, 0 0 40px rgba(251,191,36,0.4); }
-}
-
-/* ── Titre lettre par lettre wrap ── */
-.login-animated-title {
-  text-align: center;
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.8rem, 3.5vw, 1.8rem);
-  margin-bottom: 4px;
-  line-height: 1.5;
-  position: relative;
-  z-index: 1;
-}
-
-/* ── Sous-titre pulsant ── */
-.login-sub {
-  text-align: center;
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.35rem, 0.8vw, 0.55rem);
-  color: #6366f1;
-  margin-bottom: var(--gap-md);
-  animation: subPulse 2.5s ease-in-out infinite;
-  position: relative;
-  z-index: 1;
-}
-@keyframes subPulse {
-  0%,100% { opacity: 0.7; letter-spacing: 0.08em; }
-  50%      { opacity: 1;   letter-spacing: 0.15em; }
-}
-
-/* ── Champs input ── */
-.anim-input-group {
-  margin-bottom: 18px;
-  position: relative;
-}
-.anim-input-group label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.38rem, 0.8vw, 0.58rem);
-  color: #fbbf24;
-  margin-bottom: var(--gap-xs);
-}
-.anim-input-wrap {
-  position: relative;
-}
-.anim-input-icon {
-  position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  pointer-events: none;
-  transition: transform 0.3s;
-}
-.anim-input-wrap:focus-within .anim-input-icon {
-  animation: iconWiggle 0.4s ease;
-}
-@keyframes iconWiggle {
-  0%,100% { transform: translateY(-50%) rotate(0deg); }
-  25%      { transform: translateY(-50%) rotate(-15deg); }
-  75%      { transform: translateY(-50%) rotate(15deg); }
-}
-.anim-input-wrap input {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: clamp(9px,1.1vw,14px) clamp(10px,1.2vw,16px) clamp(9px,1.1vw,14px) clamp(36px,4vw,44px);
-  background: rgba(0,0,0,0.55);
-  border: 2px solid rgba(99,102,241,0.4);
-  border-radius: var(--radius-sm);
-  color: #fff;
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.42rem, 0.9vw, 0.68rem);
-  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
-  box-sizing: border-box;
-}
-.anim-input-wrap input:focus {
-  outline: none;
-  border-color: #fbbf24;
-  background: rgba(251,191,36,0.06);
-  box-shadow: 0 0 0 3px rgba(251,191,36,0.15), 0 0 20px rgba(251,191,36,0.1);
-}
-.anim-input-wrap input::placeholder { color: rgba(156,163,175,0.5); }
-
-/* ── Bouton connexion ── */
-.login-btn-animated {
-  position: relative;
-  width: 100%;
-  margin: 6px 0 0;
-  padding: clamp(11px,1.3vw,17px) clamp(16px,2vw,26px);
-  background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 50%, #ec4899 100%);
-  background-size: 200% 200%;
-  color: #fff;
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.48rem, 1vw, 0.72rem);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  overflow: hidden;
-  animation: btnGradient 4s ease infinite;
-  box-shadow: 0 4px 24px rgba(124,58,237,0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
-  z-index: 1;
-}
-.login-btn-animated::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.5s;
-}
-.login-btn-animated:hover::after { left: 160%; }
-.login-btn-animated:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 32px rgba(124,58,237,0.6), 0 0 20px rgba(236,72,153,0.3);
-}
-.login-btn-animated:active { transform: scale(0.97); }
-
-/* ── Badges bottom ── */
-.login-badges {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 18px;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
-}
-.login-badge-item {
-  font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.32rem, 0.6vw, 0.44rem);
-  padding: clamp(3px,0.4vw,6px) clamp(7px,0.8vw,12px);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: #9ca3af;
-  animation: badgeFloat 3s ease-in-out infinite;
-}
-.login-badge-item:nth-child(2) { animation-delay: 0.5s; }
-.login-badge-item:nth-child(3) { animation-delay: 1s; }
-@keyframes badgeFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
-}
-
-
-/* ==============================================
-   TRANSITIONS ENTRE LES ÉCRANS
-   ============================================= */
-.screen {
-  animation: none; /* reset */
-}
-.screen.screen-enter {
-  animation: screenEnter 0.35s cubic-bezier(0.34,1.3,0.64,1) forwards;
-}
-.screen.screen-leave {
-  animation: screenLeave 0.2s ease-in forwards;
-}
-@keyframes screenEnter {
-  0%   { opacity: 0; transform: translateY(18px) scale(0.97); }
-  100% { opacity: 1; transform: translateY(0)    scale(1); }
-}
-@keyframes screenLeave {
-  0%   { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.97); }
-}
-
-/* =============================================
-   PARALLAXE SOURIS — LOGIN
-   ============================================= */
-#loginParallaxBg {
-  position: absolute;
-  inset: -60px;           /* dépasse pour que le déplacement ne crée pas de bord blanc */
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform;
-  transition: transform 0.12s ease-out;
-}
-/* Les étoiles sont à l'intérieur du layer parallaxe */
-#loginStars {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-
-/* =============================================
-   ANIMATIONS — TOUT LE JEU
-   ============================================= */
-
-/* ── Fond body animé ── */
-body {
-  background-size: 300% 300%;
-  animation: bgShift 12s ease infinite;
-}
-@keyframes bgShift {
-  0%   { background-position: 0%   50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0%   50%; }
-}
-
-/* ── Bordure du screen active ── */
-.screen.active {
-  position: relative;
-}
-
-/* ── Titres : float + glow plus prononcé ── */
-.game-title {
-  animation: titleFloat 3s ease-in-out infinite;
-}
-@keyframes titleFloat {
-  0%,100% { transform: translateY(0);    text-shadow: 0 0 20px rgba(251,191,36,0.9); }
-  50%      { transform: translateY(-8px); text-shadow: 0 0 40px rgba(251,191,36,1), 0 0 80px rgba(251,191,36,0.5), 0 0 120px rgba(236,72,153,0.3); }
-}
-
-/* ── Shimmer + scale sur tous les boutons ── */
-button {
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s !important;
-}
-button::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.4s;
-  pointer-events: none;
-}
-button:hover::after { left: 160%; }
-button:hover {
-  transform: translateY(-4px) scale(1.04) !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
-}
-button:active { transform: scale(0.96) !important; }
-
-/* ── Stats : valeur qui pulse ── */
-.stat-value {
-  transition: transform 0.3s, color 0.3s;
-}
-.stat-value.pop {
-  animation: statPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes statPop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.35); color: #10b981; }
-  100% { transform: scale(1); }
-}
-
-/* ── Stats bar avec halo ── */
-.stats-bar {
-  animation: statsBarPulse 4s ease-in-out infinite;
-}
-@keyframes statsBarPulse {
-  0%,100% { box-shadow: 0 0 0 rgba(251,191,36,0); }
-  50%      { box-shadow: 0 0 30px rgba(251,191,36,0.25); }
-}
-
-/* ── XP bar shimmer + hauteur augmentée ── */
-.xp-fill {
-  background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7, #34d399, #10b981);
-  background-size: 300% 100%;
-  animation: xpShimmer 1.8s linear infinite;
-}
-@keyframes xpShimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ── Tuile courante ── */
-.tile.current {
-  animation: tilePulse 1.8s ease-in-out infinite;
-}
-@keyframes tilePulse {
-  0%,100% { box-shadow: 0 0 15px #10b981; transform: scale(1); }
-  50%      { box-shadow: 0 0 40px #10b981, 0 0 70px rgba(16,185,129,0.5); transform: scale(1.08); }
-}
-
-/* ── Boss tile ── */
-.tile.boss {
-  animation: bossWiggle 2s ease-in-out infinite;
-}
-@keyframes bossWiggle {
-  0%,100% { transform: rotate(0deg)   scale(1);    box-shadow: 0 0 15px rgba(239,68,68,0.5); }
-  25%      { transform: rotate(-5deg) scale(1.08); box-shadow: 0 0 30px rgba(239,68,68,0.8); }
-  75%      { transform: rotate(5deg)  scale(1.08); box-shadow: 0 0 30px rgba(124,58,237,0.8); }
-}
-
-/* ── Badges ── */
-.badge {
-  display: inline-block;
-  animation: badgeBounce 2.5s ease-in-out infinite;
-}
-.badge:nth-child(2) { animation-delay: 0.3s; }
-.badge:nth-child(3) { animation-delay: 0.6s; }
-.badge:nth-child(4) { animation-delay: 0.9s; }
-@keyframes badgeBounce {
-  0%,100% { transform: translateY(0)    rotate(0deg); }
-  40%      { transform: translateY(-6px) rotate(-3deg); }
-  70%      { transform: translateY(-3px) rotate(2deg); }
-}
-
-/* ── Shop items ── */
-.shop-item {
-  animation: shopFloat 3.5s ease-in-out infinite;
-  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-}
-.shop-item:nth-child(2) { animation-delay: 0.5s; }
-.shop-item:nth-child(3) { animation-delay: 1s; }
-.shop-item:nth-child(4) { animation-delay: 1.5s; }
-.shop-item:nth-child(5) { animation-delay: 2s; }
-@keyframes shopFloat {
-  0%,100% { transform: translateY(0); box-shadow: 0 4px 15px rgba(139,92,246,0.2); }
-  50%      { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(139,92,246,0.45); }
-}
-.shop-item:hover {
-  transform: translateY(-12px) scale(1.03) !important;
-  border-color: #fbbf24 !important;
-  box-shadow: 0 16px 40px rgba(251,191,36,0.4) !important;
-}
-.shop-item-icon {
-  display: inline-block;
-  animation: iconDance 4s ease-in-out infinite;
-}
-@keyframes iconDance {
-  0%,100% { transform: rotate(0deg)    scale(1); }
-  20%      { transform: rotate(-12deg) scale(1.15); }
-  40%      { transform: rotate(12deg)  scale(1.15); }
-  60%      { transform: rotate(-6deg)  scale(1.08); }
-  80%      { transform: rotate(6deg)   scale(1.08); }
-}
-
-/* ── Leaderboard items : slide + glow podiums ── */
-.leaderboard-item {
-  animation: lbSlideIn 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
-  transition: transform 0.2s;
-}
-.leaderboard-item:hover { transform: translateX(8px); }
-@keyframes lbSlideIn {
-  from { opacity: 0; transform: translateX(-25px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-.leaderboard-item:nth-child(1)  { animation-delay: 0.04s; }
-.leaderboard-item:nth-child(2)  { animation-delay: 0.08s; }
-.leaderboard-item:nth-child(3)  { animation-delay: 0.12s; }
-.leaderboard-item:nth-child(4)  { animation-delay: 0.16s; }
-.leaderboard-item:nth-child(5)  { animation-delay: 0.20s; }
-.leaderboard-item:nth-child(6)  { animation-delay: 0.24s; }
-.leaderboard-item:nth-child(7)  { animation-delay: 0.28s; }
-.leaderboard-item:nth-child(8)  { animation-delay: 0.32s; }
-.leaderboard-item:nth-child(9)  { animation-delay: 0.36s; }
-.leaderboard-item:nth-child(10) { animation-delay: 0.40s; }
-
-.leaderboard-item.podium-1 { animation: goldGlow 2s ease-in-out infinite; }
-.leaderboard-item.podium-2 { animation: silverGlow 2s ease-in-out infinite; }
-.leaderboard-item.podium-3 { animation: bronzeGlow 2s ease-in-out infinite; }
-@keyframes goldGlow {
-  0%,100% { box-shadow: 0 0 15px rgba(255,215,0,0.4); }
-  50%      { box-shadow: 0 0 40px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.3); }
-}
-@keyframes silverGlow {
-  0%,100% { box-shadow: 0 0 12px rgba(192,192,192,0.4); }
-  50%      { box-shadow: 0 0 30px rgba(192,192,192,0.7); }
-}
-@keyframes bronzeGlow {
-  0%,100% { box-shadow: 0 0 12px rgba(205,127,50,0.4); }
-  50%      { box-shadow: 0 0 30px rgba(205,127,50,0.7); }
-}
-
-/* ── Question container ── */
-.question-container {
-  animation: questionPulse 4s ease-in-out infinite;
-}
-@keyframes questionPulse {
-  0%,100% { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.2); }
-  50%      { border-color: #60a5fa; box-shadow: 0 0 30px rgba(59,130,246,0.4); }
-}
-
-/* ── Choix QCM hover amplifié ── */
-.choice-btn:hover {
-  transform: translateX(10px) !important;
-  border-color: #fbbf24 !important;
-  box-shadow: 4px 0 20px rgba(251,191,36,0.3) !important;
-}
-
-/* ── Cœurs qui battent ── */
-.heart:not(.lost) {
-  display: inline-block;
-  animation: heartBeat 1.2s ease-in-out infinite;
-}
-.heart:nth-child(2) { animation-delay: 0.15s; }
-.heart:nth-child(3) { animation-delay: 0.30s; }
-@keyframes heartBeat {
-  0%,100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239,68,68,0)); }
-  14%      { transform: scale(1.3); filter: drop-shadow(0 0 8px rgba(239,68,68,0.8)); }
-  28%      { transform: scale(1); }
-  42%      { transform: scale(1.2); filter: drop-shadow(0 0 5px rgba(239,68,68,0.6)); }
-  70%      { transform: scale(1); }
-}
-
-/* ── Bouton Jouer pulsant ── */
-#homeScreen button.primary:first-of-type {
-  animation: playBtnPulse 1.8s ease-in-out infinite;
-}
-@keyframes playBtnPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.6); }
-  50%      { box-shadow: 0 0 0 12px rgba(59,130,246,0); }
-}
-
-/* ── Quêtes ── */
-.quest-item {
-  transition: transform 0.25s, background 0.25s;
-}
-.quest-item:hover {
-  transform: translateX(8px);
-  background: rgba(16,185,129,0.2);
-}
-
-/* ── Daily reward ── */
-#dailyLoginRewardBanner {
-  animation: rewardJump 2.5s ease-in-out infinite;
-}
-@keyframes rewardJump {
-  0%,100% { transform: translateY(0) rotate(0deg); }
-  40%      { transform: translateY(-6px) rotate(-1deg); }
-  70%      { transform: translateY(-3px) rotate(1deg); }
-}
-
-/* ── PVP ready ── */
-.pvp-player-card.ready {
-  animation: readyPulse 1.2s ease-in-out infinite;
-}
-@keyframes readyPulse {
-  0%,100% { box-shadow: 0 0 10px rgba(16,185,129,0.4); }
-  50%      { box-shadow: 0 0 30px rgba(16,185,129,0.8), 0 0 50px rgba(16,185,129,0.3); }
-}
-
-/* ── Online player ── */
-.online-player-card {
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-.online-player-card:hover {
-  transform: translateX(8px);
-  box-shadow: -4px 0 20px rgba(16,185,129,0.3);
-}
-
-/* ── Talent unlocked ── */
-.talent-node.unlocked {
-  animation: talentGlow 2.5s ease-in-out infinite;
-}
-@keyframes talentGlow {
-  0%,100% { box-shadow: 0 0 10px rgba(16,185,129,0.5); transform: scale(1); }
-  50%      { box-shadow: 0 0 30px rgba(16,185,129,0.9), 0 0 50px rgba(16,185,129,0.4); transform: scale(1.05); }
-}
-
-/* ── League gold ── */
-.league-gold {
-  animation: leagueGlow 2s ease-in-out infinite;
-}
-@keyframes leagueGlow {
-  0%,100% { box-shadow: 0 0 10px rgba(255,215,0,0.5); }
-  50%      { box-shadow: 0 0 30px rgba(255,215,0,0.9), 0 0 50px rgba(255,215,0,0.4); }
-}
-
-/* ── Event banner ── */
-#eventBanner {
-  animation: eventBannerPulse 2s ease-in-out infinite !important;
-}
-@keyframes eventBannerPulse {
-  0%,100% { transform: scale(1); }
-  50%      { transform: scale(1.02); box-shadow: 0 0 30px rgba(251,191,36,0.6); }
-}
-
-/* ── Energy bar ── */
-#energyDisplay {
-  animation: energyPulse 3s ease-in-out infinite;
-}
-@keyframes energyPulse {
-  0%,100% { box-shadow: none; }
-  50%      { box-shadow: 0 0 20px rgba(239,68,68,0.3); }
-}
-
-/* ── Admin panel ── */
-.admin-panel {
-  animation: adminGlow 4s ease-in-out infinite;
-}
-@keyframes adminGlow {
-  0%,100% { box-shadow: 0 0 15px rgba(251,191,36,0.3); }
-  50%      { box-shadow: 0 0 40px rgba(251,191,36,0.7); }
-}
 </style>
 </head>
 <body>
@@ -2204,79 +1244,28 @@ button:active { transform: scale(0.96) !important; }
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen active">
-
-  <!-- Layer parallaxe (fond + étoiles) -->
-  <div id="loginParallaxBg" aria-hidden="true">
-    <div id="loginStars"></div>
+  <h1 class="game-title">🎮 SCHOOLMES 🎮</h1>
+  <p style="text-align:center; font-size:0.8rem; margin-bottom:30px; color:#9ca3af;">
+    L'aventure éducative - 10 000 niveaux !
+  </p>
+  
+  <div class="input-group">
+    <label>📝 Pseudo</label>
+    <input type="text" id="loginUsername" placeholder="Ton pseudo" onkeypress="if(event.key==='Enter') login()">
   </div>
-
-  <!-- Mascotte animée -->
-  <div class="login-mascot-big" aria-hidden="true">🎮</div>
-
-  <!-- Titre lettre par lettre -->
-  <div class="login-animated-title" id="loginAnimTitle"></div>
-
-  <!-- Sous-titre pulsant -->
-  <p class="login-sub">✨ L'aventure éducative · 10 000 niveaux ✨</p>
-
-  <!-- Ligne d'emojis sauteurs -->
-  <div class="login-emoji-row" aria-hidden="true">
-    <span>📚</span><span>⭐</span><span>🏆</span><span>💡</span><span>🔥</span><span>🎯</span>
+  
+  <div class="input-group">
+    <label>🔐 Code (min 6 caractères)</label>
+    <input type="password" id="loginCode" placeholder="Ton code secret" onkeypress="if(event.key==='Enter') login()">
   </div>
-
-  <!-- Carte formulaire -->
-  <div class="login-orbit-wrap">
-
-    <!-- Icônes en orbite -->
-    <div class="orbit-icon" style="--r:165px; top:50%; left:50%; animation-duration:7s;  animation-delay:0s;">⚡</div>
-    <div class="orbit-icon" style="--r:155px; top:50%; left:50%; animation-duration:9s;  animation-delay:-3s;">🌟</div>
-    <div class="orbit-icon" style="--r:170px; top:50%; left:50%; animation-duration:11s; animation-delay:-6s;">📖</div>
-    <div class="orbit-icon" style="--r:160px; top:50%; left:50%; animation-duration:8s;  animation-delay:-2s;">🎲</div>
-
-    <div class="login-form-card">
-
-      <!-- Champ pseudo -->
-      <div class="anim-input-group">
-        <label for="loginUsername">📝 PSEUDO</label>
-        <div class="anim-input-wrap">
-          <span class="anim-input-icon">👤</span>
-          <input type="text" id="loginUsername" placeholder="Ton pseudo..."
-                 onkeypress="if(event.key==='Enter') login()"
-                 autocomplete="username">
-        </div>
-      </div>
-
-      <!-- Champ code -->
-      <div class="anim-input-group">
-        <label for="loginCode">🔐 CODE SECRET</label>
-        <div class="anim-input-wrap">
-          <span class="anim-input-icon">🔑</span>
-          <input type="password" id="loginCode" placeholder="Min. 6 caractères..."
-                 onkeypress="if(event.key==='Enter') login()"
-                 autocomplete="current-password">
-        </div>
-      </div>
-
-      <!-- Bouton avec anneau tournant -->
-      <div class="login-btn-ring">
-        <button id="loginBtn" class="login-btn-animated" onclick="login()">
-          🚀 CONNEXION / INSCRIPTION
-        </button>
-      </div>
-
-      <!-- Statut Firebase -->
-      <div id="loginFirebaseStatus" style="text-align:center; margin-top:14px; font-size:0.45rem; color:#6b7280; font-family:'Press Start 2P',cursive;">
-        ⏳ Vérification Firebase...
-      </div>
-
-      <!-- Badges -->
-      <div class="login-badges">
-        <span class="login-badge-item">🌍 Multijoueur</span>
-        <span class="login-badge-item">🏆 Classement mondial</span>
-        <span class="login-badge-item">🎖️ Badges & XP</span>
-      </div>
-    </div><!-- /login-form-card -->
-  </div><!-- /login-orbit-wrap -->
+  
+  <div style="text-align:center; margin-top:30px;">
+    <button id="loginBtn" class="primary" onclick="login()">🚀 Connexion / Inscription</button>
+  </div>
+  
+  <div id="loginFirebaseStatus" style="text-align:center; margin-top:20px; font-size:0.55rem; color:#9ca3af;">
+    ⏳ Vérification Firebase...
+  </div>
 </div>
 
 <!-- HOME -->
@@ -2642,19 +1631,27 @@ button:active { transform: scale(0.96) !important; }
 // ========================================
 const firebaseConfig = {
 
-  apiKey: "AIzaSyAf0oJHNukISOzRkgjAFNPbR_irvyXeDyM",
 
-  authDomain: "schoolmes-games.firebaseapp.com",
+  apiKey: "AIzaSyAf0oJHNukISOzRkgjAFNPbR_irvyXeDyM",
 
-  databaseURL: "https://schoolmes-games-default-rtdb.europe-west1.firebasedatabase.app",
 
-  projectId: "schoolmes-games",
+  authDomain: "schoolmes-games.firebaseapp.com",
 
-  storageBucket: "schoolmes-games.firebasestorage.app",
 
-  messagingSenderId: "623068569178",
+  databaseURL: "https://schoolmes-games-default-rtdb.europe-west1.firebasedatabase.app",
 
-  appId: "1:623068569178:web:657b9188d85d7ae89c8263"
+
+  projectId: "schoolmes-games",
+
+
+  storageBucket: "schoolmes-games.firebasestorage.app",
+
+
+  messagingSenderId: "623068569178",
+
+
+  appId: "1:623068569178:web:657b9188d85d7ae89c8263"
+
 
 };
 // ========================================
@@ -2903,8 +1900,8 @@ async function login() {
   const username = document.getElementById('loginUsername').value.trim();
   const code = document.getElementById('loginCode').value.trim();
   
-  if (!username || !code || code.length < 4) {
-    alert('⚠️ Pseudo et code requis (min 4 caractères) !');
+  if (!username || !code || code.length < 6) {
+    alert('⚠️ Pseudo et code requis (min 6 caractères) !');
     return;
   }
 
@@ -2928,15 +1925,20 @@ async function login() {
       try {
         // Authentification Firebase pour que les règles de sécurité acceptent les écritures (leaderboard, players)
         const adminEmail = `admin_${matchedAdmin.username}@schoolmes.game`;
+        let adminCred = null;
         try {
-          await auth.signInWithEmailAndPassword(adminEmail, code);
+          adminCred = await auth.signInWithEmailAndPassword(adminEmail, code);
         } catch(authErr) {
           if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email') {
-            await auth.createUserWithEmailAndPassword(adminEmail, code);
+            adminCred = await auth.createUserWithEmailAndPassword(adminEmail, code);
           } else {
             // Fallback anonyme si le compte existe déjà avec un autre mot de passe
-            try { await auth.signInAnonymously(); } catch(_) {}
+            try { adminCred = await auth.signInAnonymously(); } catch(_) {}
           }
+        }
+        // Utiliser le vrai UID Firebase (indispensable pour les règles de sécurité)
+        if (adminCred && adminCred.user) {
+          currentUserId = adminCred.user.uid;
         }
         const snap = await database.ref('players/' + currentUserId).once('value');
         if (snap.exists()) {
@@ -2962,6 +1964,7 @@ async function login() {
       } catch(e) { console.warn('Admin Firebase sync:', e.message); }
     }
     startAutoSave();
+    startEventListener(); // Écouter les événements Firebase en temps réel
     showScreen('homeScreen');
     updateHomeScreen();
     return;
@@ -3040,6 +2043,7 @@ async function login() {
 
     await loadPlayerFromFirebase(currentUserId);
     startAutoSave();
+    startEventListener(); // Écouter les événements Firebase en temps réel
     checkSpecialBadges();
     resetBtn();
     showScreen('homeScreen');
@@ -3742,15 +2746,15 @@ function submitAnswer() {
     // Time bonus
     xpGain += timeBonus * 10;
     
-    // Boost XP ×2
-    if (player.inventory.xpBoost > 0) {
+    // Boost XP ×3 (priorité sur ×2)
+    const _wasXpBoosted = player.inventory.xpBoost3 > 0 || player.inventory.xpBoost > 0;
+    if (player.inventory.xpBoost3 > 0) {
+      xpGain *= 3;
+      player.inventory.xpBoost3--;
+    } else if (player.inventory.xpBoost > 0) {
+      // Boost XP ×2
       xpGain *= 2;
       player.inventory.xpBoost--;
-    }
-    // Boost XP ×3 (priorité sur ×2 si les deux sont actifs)
-    if (player.inventory.xpBoost3 > 0) {
-      xpGain = (isBoss ? 250 : 50) * 3;
-      player.inventory.xpBoost3--;
     }
     
     // Event multiplier
@@ -3767,6 +2771,7 @@ function submitAnswer() {
     if (player.talents && player.talents.includes('t7')) coinGain = Math.floor(coinGain * 1.25);
     
     // Bonus Pièces ×2
+    const _wasCoinBoosted = (player.inventory.coinBoost || 0) > 0;
     if ((player.inventory.coinBoost || 0) > 0) {
       coinGain *= 2;
       player.inventory.coinBoost--;
@@ -3817,8 +2822,8 @@ function submitAnswer() {
     
     const comboTxt = comboMult > 1 ? ` 🔥×${comboMult}` : '';
     const timeTxt = timeBonus > 0 ? ` ⏱️+${timeBonus*10}XP` : '';
-    const boostMsg = player.inventory.xpBoost > 0 || player.inventory.xpBoost3 > 0 ? ' ⚡ BOOST !' : '';
-    const coinMsg = (player.inventory.coinBoost || 0) > 0 ? ' 💸 BONUS !' : '';
+    const boostMsg = _wasXpBoosted ? ' ⚡ BOOST !' : '';
+    const coinMsg = _wasCoinBoosted ? ' 💸 BONUS !' : '';
     document.getElementById('quizFeedback').innerHTML = `
       <div style="color:#10b981; font-size:1.2rem;">✅ CORRECT !${comboTxt}</div>
       <div style="color:#fbbf24;">+${xpGain} XP${boostMsg}${timeTxt} | +${coinGain} 💰${coinMsg}</div>
@@ -4498,6 +3503,7 @@ function buyItem(id) {
   updateHomeScreen();
 }
 
+
 // AVATAR
 function initAvatarEditor() {
   if (player.avatarData && player.avatarData.length === GRID_SIZE * GRID_SIZE) {
@@ -4920,7 +3926,8 @@ function updateHomeScreen() {
           <button class="gold" onclick="adminGiveAll()">🌍 Donner à TOUS</button>
           <button class="danger" onclick="openAdminBan()">🔨 Bannir / Débannir</button>
           <button class="danger" onclick="adminReset()">🔄 Reset local</button>
-          <button style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="triggerRandomEvent()">⚡ Déclencher Événement</button>
+          <button style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="openAdminEventPanel()">⚡ Déclencher Événement</button>
+          <button style="background:linear-gradient(135deg,#ef4444,#b91c1c);" onclick="stopAdminEvent()">🛑 Stopper Événement</button>
           <button style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;" onclick="openPrestigeModal()">⭐ Test Prestige</button>
         </div>
       </div>
@@ -5927,6 +4934,8 @@ function updateMusicForScreen(screenId) {
 
 // Logique musique intégrée directement dans saveSetting()
 
+
+
 // --- 3. LOOT & DROPS ---
 const LOOT_TABLE = [
   { chance: 0.4, rarity: 'common', reward: () => { player.coins += 25; return '💰 25 Pièces'; }, label: 'Pièces communes', rarityClass: 'rarity-common' },
@@ -6317,28 +5326,67 @@ const EVENTS = [
 let activeEvent = null;
 let eventEndTime = null;
 
+// ── Événements Firebase partagés ────────────────────────────────
+// L'admin écrit dans database.ref('activeEvent'), tous les clients écoutent en temps réel.
+
 function triggerRandomEvent() {
-  if (activeEvent) return;
   const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
-  activeEvent = event;
-  eventEndTime = Date.now() + event.duration;
-  // Update banner if visible (only on homeScreen)
-  const banner = document.getElementById('eventBanner');
-  if (banner) {
-    banner.style.display = 'block';
-    banner.innerHTML = `🚨 ÉVÉNEMENT: ${event.name}<br><span style="font-size:0.5rem;">${event.desc} — <span id="eventTimer"></span></span>`;
+  const endTime = Date.now() + event.duration;
+
+  if (firebaseReady && database) {
+    // Écrire l'événement dans Firebase → tous les joueurs le reçoivent instantanément
+    database.ref('activeEvent').set({
+      id: event.id,
+      name: event.name,
+      desc: event.desc,
+      color: event.color,
+      endTime: endTime,
+      startedBy: player ? player.username : 'Admin'
+    }).then(() => {
+      alert('✅ Événement lancé pour TOUS les joueurs : ' + event.name);
+    }).catch(e => {
+      alert('❌ Erreur Firebase : ' + e.message);
+    });
+  } else {
+    // Fallback local si pas de Firebase
+    activeEvent = event;
+    eventEndTime = endTime;
+    _applyEventBanner();
+    updateEventTimer();
   }
-  updateEventTimer();
 }
 
-function refreshEventBanner() {
-  if (!activeEvent || Date.now() > eventEndTime) return;
+function startEventListener() {
+  if (!firebaseReady || !database) return;
+  database.ref('activeEvent').on('value', snap => {
+    const data = snap.val();
+    if (data && data.endTime > Date.now()) {
+      activeEvent = EVENTS.find(e => e.id === data.id) || data;
+      eventEndTime = data.endTime;
+      _applyEventBanner();
+      updateEventTimer();
+    } else {
+      activeEvent = null;
+      eventEndTime = null;
+      const banner = document.getElementById('eventBanner');
+      if (banner) banner.style.display = 'none';
+    }
+  });
+}
+
+function _applyEventBanner() {
+  if (!activeEvent) return;
   const banner = document.getElementById('eventBanner');
   if (banner) {
     banner.style.display = 'block';
     banner.innerHTML = `🚨 ÉVÉNEMENT: ${activeEvent.name}<br><span style="font-size:0.5rem;">${activeEvent.desc} — <span id="eventTimer"></span></span>`;
-    updateEventTimer();
   }
+}
+
+function refreshEventBanner() {
+  if (!activeEvent || Date.now() > eventEndTime) return;
+  _applyEventBanner();
+  updateEventTimer();
 }
 
 function updateEventTimer() {
@@ -6348,6 +5396,10 @@ function updateEventTimer() {
     activeEvent = null;
     const banner = document.getElementById('eventBanner');
     if (banner) banner.style.display = 'none';
+    // Supprimer l'événement de Firebase si on est admin
+    if (firebaseReady && database && player && player.isAdmin) {
+      database.ref('activeEvent').remove().catch(()=>{});
+    }
     return;
   }
   const mins = Math.floor(remaining / 60000);
@@ -6370,11 +5422,65 @@ function showEventDetails() {
   alert(`🚨 ÉVÉNEMENT ACTIF: ${activeEvent.name}\n${activeEvent.desc}`);
 }
 
-// Trigger random event every 20-40 minutes
+function openAdminEventPanel() {
+  if (!player || !player.isAdmin) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'adminEventOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:20000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  const eventOptions = EVENTS.map((e, i) => `
+    <button style="margin:8px;padding:14px 20px;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:2px solid #fbbf24;border-radius:12px;font-family:'Press Start 2P';font-size:0.6rem;color:white;cursor:pointer;"
+      onclick="triggerSpecificEvent(${i}); document.getElementById('adminEventOverlay').remove();">
+      ${e.name}<br><span style="font-size:0.45rem;color:#9ca3af;">${e.desc}</span>
+    </button>
+  `).join('');
+  overlay.innerHTML = `
+    <div style="background:#1a0a2e;border:3px solid #7c3aed;border-radius:20px;padding:25px;max-width:500px;width:100%;text-align:center;">
+      <h3 style="color:#fbbf24;font-size:0.85rem;margin-bottom:20px;">⚡ CHOISIR UN ÉVÉNEMENT</h3>
+      <div>${eventOptions}</div>
+      <button class="danger" style="margin-top:15px;" onclick="document.getElementById('adminEventOverlay').remove()">✖ Annuler</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function triggerSpecificEvent(index) {
+  if (!player || !player.isAdmin) return;
+  const event = EVENTS[index];
+  if (!event) return;
+  const endTime = Date.now() + event.duration;
+  if (firebaseReady && database) {
+    database.ref('activeEvent').set({
+      id: event.id, name: event.name, desc: event.desc, color: event.color,
+      endTime: endTime, startedBy: player.username
+    }).then(() => {
+      alert('✅ Événement lancé pour TOUS : ' + event.name);
+    }).catch(e => alert('❌ Erreur Firebase : ' + e.message));
+  } else {
+    activeEvent = event;
+    eventEndTime = endTime;
+    _applyEventBanner();
+    updateEventTimer();
+  }
+}
+
+function stopAdminEvent() {
+  if (!player || !player.isAdmin) return;
+  if (!confirm('🛑 Arrêter l\'événement en cours ?')) return;
+  if (firebaseReady && database) {
+    database.ref('activeEvent').remove().catch(e => alert('❌ Erreur : ' + e.message));
+  } else {
+    activeEvent = null;
+    eventEndTime = null;
+    const banner = document.getElementById('eventBanner');
+    if (banner) banner.style.display = 'none';
+  }
+}
+
+// Trigger random event every 20-40 minutes (local auto-schedule, admins only)
 function scheduleRandomEvent() {
   const delay = (20 + Math.random() * 20) * 60 * 1000;
   setTimeout(() => {
-    if (player) triggerRandomEvent();
+    if (player && player.isAdmin) triggerRandomEvent();
     scheduleRandomEvent();
   }, delay);
 }
@@ -6468,7 +5574,7 @@ let mpCurrentTab = 'rooms';
 
 // ── Présence en ligne ──────────────────────────────────────────
 function startPresence() {
-  if (!firebaseReady || !currentUserId || currentUserId.startsWith('admin_') || currentUserId === 'admin' || currentUserId.startsWith('local_')) return;
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) return;
   const ref = database.ref('presence/' + currentUserId);
   ref.set({ username: player.username, level: player.level || 1, maxLevel: player.maxLevel || 1, online: true, ts: Date.now() });
   ref.onDisconnect().remove();
@@ -6480,14 +5586,14 @@ function startPresence() {
 
 function stopPresence() {
   if (presenceInterval) clearInterval(presenceInterval);
-  if (!firebaseReady || !currentUserId || currentUserId.startsWith('admin_') || currentUserId === 'admin' || currentUserId.startsWith('local_')) return;
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) return;
   database.ref('presence/' + currentUserId).remove();
   if (challengeListener) { database.ref('challenges/' + currentUserId).off(); challengeListener = null; }
 }
 
 // ── Challenges entrants ────────────────────────────────────────
 function listenForChallenges() {
-  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_') || currentUserId.startsWith('admin_') || currentUserId === 'admin') return;
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) return;
   const ref = database.ref('challenges/' + currentUserId);
   challengeListener = ref.on('child_added', snap => {
     const challenge = snap.val();
@@ -6516,7 +5622,7 @@ function showChallengeNotif(challenge, challengeId) {
 
 // ── Initialisation écran multi ─────────────────────────────────
 function initMultiplayer() {
-  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_') || currentUserId.startsWith('admin_') || currentUserId === 'admin') {
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) {
     document.getElementById('mpFirebaseWarning').style.display = 'block';
     document.getElementById('mpRoomsList').innerHTML = '';
     document.getElementById('mpOnlineList').innerHTML = '';
@@ -7159,7 +6265,7 @@ logout = function() {
 const _origShowScreen = showScreen;
 showScreen = function(screenId) {
   _origShowScreen(screenId);
-  if (screenId === 'homeScreen' && player && firebaseReady && currentUserId && !currentUserId.startsWith('local_') && !currentUserId.startsWith('admin_') && currentUserId !== 'admin') {
+  if (screenId === 'homeScreen' && player && firebaseReady && currentUserId && !currentUserId.startsWith('local_')) {
     // Refresh presence on home
     database.ref('presence/' + currentUserId).update({ ts: Date.now(), username: player.username, level: player.level || 1, maxLevel: player.maxLevel || 1, online: true }).catch(()=>{});
   }
@@ -7169,7 +6275,7 @@ showScreen = function(screenId) {
 const _origUpdateHS = updateHomeScreen;
 updateHomeScreen = function() {
   _origUpdateHS();
-  if (player && !player._presenceStarted && firebaseReady && currentUserId && !currentUserId.startsWith('local_') && !currentUserId.startsWith('admin_') && currentUserId !== 'admin') {
+  if (player && !player._presenceStarted && firebaseReady && currentUserId && !currentUserId.startsWith('local_')) {
     player._presenceStarted = true;
     startPresence();
   }
@@ -7704,7 +6810,7 @@ function submitBrevetAnswer() {
   var q = brevetState.questions[brevetState.currentIndex];
   var input = document.getElementById('brevetDirectInput').value.trim().toLowerCase();
   var correct = q.choices[q.answer].toLowerCase();
-  var isCorrect = input === correct || correct.includes(input) && input.length > 3;
+  var isCorrect = input === correct || (correct.includes(input) && input.length > 3);
   brevetState.answered = true;
   if (isCorrect) { brevetState.correct++; } else { brevetState.wrong++; }
   document.getElementById('brevetCorrectCount').textContent = brevetState.correct;
@@ -7833,274 +6939,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   updateCountdown();
   setInterval(updateCountdown, 1000);
-})();
-</script>
-
-
-<script>
-(function() {
-  function initLoginStars() {
-    var canvas = document.getElementById('loginStarsCanvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var W, H, stars = [], shooting = [];
-    var RAF;
-
-    function resize() {
-      var screen = document.getElementById('loginScreen');
-      W = canvas.width  = screen ? screen.offsetWidth  : window.innerWidth;
-      H = canvas.height = screen ? screen.offsetHeight : window.innerHeight;
-    }
-
-    function makeStar() {
-      return {
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: Math.random() * 1.4 + 0.3,
-        alpha: Math.random() * 0.6 + 0.2,
-        speed: Math.random() * 0.008 + 0.004,
-        phase: Math.random() * Math.PI * 2,
-        color: Math.random() < 0.15 ? '#ec4899' : Math.random() < 0.25 ? '#7c3aed' : '#ffffff'
-      };
-    }
-
-    function makeShoot() {
-      return {
-        x: Math.random() * W * 0.6,
-        y: Math.random() * H * 0.4,
-        len: Math.random() * 100 + 60,
-        speed: Math.random() * 6 + 5,
-        alpha: 1,
-        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
-        life: 1
-      };
-    }
-
-    function init() {
-      resize();
-      stars = [];
-      for (var i = 0; i < 160; i++) stars.push(makeStar());
-      shooting = [];
-    }
-
-    var t = 0;
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      t += 0.016;
-
-      // étoiles fixes
-      for (var i = 0; i < stars.length; i++) {
-        var s = stars[i];
-        var a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 60 + s.phase));
-        ctx.globalAlpha = a;
-        ctx.fillStyle = s.color;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // étoiles filantes
-      for (var j = shooting.length - 1; j >= 0; j--) {
-        var sh = shooting[j];
-        sh.x += Math.cos(sh.angle) * sh.speed;
-        sh.y += Math.sin(sh.angle) * sh.speed;
-        sh.life -= 0.018;
-        if (sh.life <= 0) { shooting.splice(j, 1); continue; }
-        var grad = ctx.createLinearGradient(
-          sh.x, sh.y,
-          sh.x - Math.cos(sh.angle) * sh.len,
-          sh.y - Math.sin(sh.angle) * sh.len
-        );
-        grad.addColorStop(0, 'rgba(251,191,36,' + sh.life + ')');
-        grad.addColorStop(1, 'rgba(251,191,36,0)');
-        ctx.globalAlpha = sh.life;
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(sh.x, sh.y);
-        ctx.lineTo(sh.x - Math.cos(sh.angle) * sh.len, sh.y - Math.sin(sh.angle) * sh.len);
-        ctx.stroke();
-      }
-
-      ctx.globalAlpha = 1;
-
-      // lancer une étoile filante aléatoirement
-      if (Math.random() < 0.004) shooting.push(makeShoot());
-
-      RAF = requestAnimationFrame(draw);
-    }
-
-    init();
-    draw();
-    window.addEventListener('resize', function() { init(); });
-
-    // Arrêter l'animation quand on quitte l'écran login (économie CPU)
-    var obs = new MutationObserver(function() {
-      var el = document.getElementById('loginScreen');
-      if (el && el.classList.contains('active')) {
-        if (!RAF) draw();
-      } else {
-        cancelAnimationFrame(RAF); RAF = null;
-      }
-    });
-    obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLoginStars);
-  } else {
-    initLoginStars();
-  }
-})();
-</script>
-
-
-<script>
-/* ── Animations login screen ── */
-(function() {
-  var LETTERS  = ['S','C','H','O','O','L','M','E','S'];
-  var DELAYS   = [0, 0.12, 0.24, 0.36, 0.48, 0.60, 0.72, 0.84, 0.96];
-  var COLORS   = ['#fbbf24','#ec4899','#fbbf24','#7c3aed','#fbbf24','#3b82f6','#fbbf24','#10b981','#fbbf24'];
-
-  function buildTitle() {
-    var wrap = document.getElementById('loginAnimTitle');
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    LETTERS.forEach(function(l, i) {
-      var span = document.createElement('span');
-      span.className = 'login-letter';
-      span.textContent = l;
-      span.style.animationDelay = DELAYS[i] + 's';
-      span.style.color = COLORS[i];
-      span.style.textShadow = '0 0 12px ' + COLORS[i] + ', 0 0 30px ' + COLORS[i] + '44';
-      wrap.appendChild(span);
-    });
-  }
-
-  var STAR_EMOJIS = ['⭐','✨','💫','🌟','⚡','🎮','📚','🏆','💡','🎯','🔥','💎'];
-  function spawnStars() {
-    var container = document.getElementById('loginStars');
-    if (!container) return;
-    container.innerHTML = '';
-    for (var i = 0; i < 22; i++) {
-      (function(idx) {
-        var el = document.createElement('div');
-        el.className = 'login-star';
-        el.textContent = STAR_EMOJIS[idx % STAR_EMOJIS.length];
-        var leftPct  = Math.random() * 95;
-        var topPct   = 20 + Math.random() * 75;
-        var dur      = 4 + Math.random() * 6;
-        var delay    = Math.random() * 8;
-        var size     = 0.7 + Math.random() * 0.8;
-        el.style.left            = leftPct + '%';
-        el.style.top             = topPct + '%';
-        el.style.fontSize        = size + 'rem';
-        el.style.animationDuration = dur + 's';
-        el.style.animationDelay  = delay + 's';
-        container.appendChild(el);
-      })(i);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    buildTitle();
-    spawnStars();
-  });
-})();
-</script>
-
-<script>
-/* ════════════════════════════════════════════
-   TRANSITIONS ANIMÉES ENTRE LES ÉCRANS
-   ════════════════════════════════════════════ */
-(function() {
-  window.showScreen = function(screenId) {
-    // 1. Cacher tous les écrans immédiatement
-    document.querySelectorAll('.screen').forEach(function(s) {
-      s.classList.remove('active', 'screen-enter');
-    });
-
-    // 2. Remonter tout en haut
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-
-    // 3. Afficher le nouvel écran avec animation d'entrée
-    var next = document.getElementById(screenId);
-    if (!next) return;
-    next.classList.add('active');
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        next.classList.add('screen-enter');
-        setTimeout(function() { next.classList.remove('screen-enter'); }, 400);
-      });
-    });
-
-    // 4. Musique
-    try { updateMusicForScreen(screenId); } catch(e) {}
-  };
-})();
-
-/* ════════════════════════════════════════════
-   PARALLAXE SOURIS — LOGIN
-   ════════════════════════════════════════════ */
-(function() {
-  var lastX = 0, lastY = 0;
-  var targetX = 0, targetY = 0;
-  var rafId = null;
-  var strength = 18; // pixels max de déplacement
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  function animate() {
-    lastX = lerp(lastX, targetX, 0.06);
-    lastY = lerp(lastY, targetY, 0.06);
-    var layer = document.getElementById('loginParallaxBg');
-    if (layer) {
-      layer.style.transform = 'translate(' + lastX + 'px,' + lastY + 'px)';
-    }
-    rafId = requestAnimationFrame(animate);
-  }
-
-  document.addEventListener('mousemove', function(e) {
-    var cx = window.innerWidth  / 2;
-    var cy = window.innerHeight / 2;
-    // Normaliser entre -1 et 1 puis multiplier par strength
-    targetX = ((e.clientX - cx) / cx) * strength;
-    targetY = ((e.clientY - cy) / cy) * strength;
-  });
-
-  // Gyroscope mobile
-  window.addEventListener('deviceorientation', function(e) {
-    if (e.gamma == null) return;
-    targetX =  (e.gamma / 45) * strength;
-    targetY = ((e.beta  - 40) / 45) * strength;
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
-    animate();
-  });
-})();
-</script>
-
-
-<script>
-/* Fait "pop" les valeurs de stats quand elles changent */
-(function() {
-  function watchStatPop(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var obs = new MutationObserver(function() {
-      el.classList.remove('pop');
-      void el.offsetWidth; // reflow pour relancer l'animation
-      el.classList.add('pop');
-    });
-    obs.observe(el, { childList: true, subtree: true, characterData: true });
-  }
-  document.addEventListener('DOMContentLoaded', function() {
-    ['homeLevel','homeCoins','homeXP','gameLevel','gameCoins','gameXP',
-     'energyCount','homeUsername'].forEach(watchStatPop);
-  });
 })();
 </script>
 
