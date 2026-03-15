@@ -1202,12 +1202,93 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   pointer-events: none;
 }
 #autosaveIndicator.show { opacity: 1; }
+
+/* ===== MESSAGERIE ADMIN ===== */
+#adminMsgBanner {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 18000;
+  max-width: 420px;
+  width: calc(100% - 40px);
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 3px solid #fbbf24;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 0 40px rgba(251,191,36,0.5);
+  font-family: 'Press Start 2P', cursive;
+  display: none;
+}
+#adminMsgBanner.show { display: block; animation: msgSlideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes msgSlideUp {
+  from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
+}
+.admin-msg-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.admin-msg-crown { font-size: 1.3rem; }
+.admin-msg-title { font-size: 0.55rem; color: #fbbf24; flex: 1; }
+.admin-msg-close {
+  background: rgba(239,68,68,0.4); border: none; border-radius: 8px;
+  color: #fff; font-size: 0.5rem; padding: 4px 8px; cursor: pointer;
+  font-family: 'Press Start 2P', cursive;
+}
+.admin-msg-body {
+  font-size: 0.6rem; color: #e2e8f0; line-height: 1.7;
+  background: rgba(255,255,255,0.05); border-radius: 10px;
+  padding: 12px; margin-bottom: 12px; border: 1px solid rgba(251,191,36,0.2);
+  white-space: pre-wrap; word-break: break-word;
+}
+.admin-msg-meta { font-size: 0.45rem; color: #9ca3af; margin-bottom: 10px; }
+.admin-msg-read-btn {
+  width: 100%; padding: 10px; font-size: 0.55rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none; border-radius: 10px; color: #fff;
+  cursor: pointer; font-family: 'Press Start 2P', cursive;
+}
+.admin-msg-read-btn:hover { opacity: 0.85; }
+#adminMsgDot {
+  position: fixed; top: 58px; left: 16px; z-index: 17000;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fbbf24; border: 2px solid #000;
+  box-shadow: 0 0 10px #fbbf24;
+  animation: dotPulse 1.5s infinite;
+  display: none; cursor: pointer;
+}
+#adminMsgDot.show { display: block; }
+.admin-msg-inbox-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px; margin: 8px 0;
+  background: rgba(0,0,0,0.5); border-radius: 12px;
+  border: 2px solid rgba(251,191,36,0.3); font-size: 0.55rem;
+  transition: border-color 0.2s;
+}
+.admin-msg-inbox-item.unread { border-color: #fbbf24; background: rgba(251,191,36,0.08); }
+.admin-msg-inbox-item.read { opacity: 0.6; }
 </style>
 </head>
 <body>
 
 <!-- AUTO-SAVE INDICATOR -->
 <div id="autosaveIndicator">⚙️...</div>
+
+<!-- POINT DE NOTIFICATION MESSAGE ADMIN -->
+<div id="adminMsgDot" title="Nouveau message admin" onclick="openAdminMsgInbox()">📨</div>
+
+<!-- BANNIÈRE MESSAGE ADMIN -->
+<div id="adminMsgBanner">
+  <div class="admin-msg-header">
+    <span class="admin-msg-crown">👑</span>
+    <span class="admin-msg-title">MESSAGE DE L'ÉQUIPE ADMIN</span>
+    <button class="admin-msg-close" onclick="closeAdminMsgBanner()">✖</button>
+  </div>
+  <div class="admin-msg-body" id="adminMsgBannerText"></div>
+  <div class="admin-msg-meta" id="adminMsgBannerMeta"></div>
+  <button class="admin-msg-read-btn" onclick="markCurrentMsgRead()">✅ Marquer comme lu</button>
+</div>
 
 <!-- INDICATEUR MUSICAL -->
 <div id="musicIndicator">
@@ -2089,6 +2170,9 @@ function loginLocal(username, code) {
   }
   startAutoSave();
   startPlayTimeTracking();
+  // Démarrer l'écoute des messages admin
+  startMsgListener();
+  updateMsgDot();
 }
 
 async function logout() {
@@ -3335,7 +3419,7 @@ function renderSettings() {
           <div class="settings-label">📋 Informations</div>
           <div class="settings-desc">Version du jeu et infos</div>
         </div>
-        <div style="font-size:0.5rem;color:#9ca3af;">v1.3.0</div>
+        <div style="font-size:0.5rem;color:#9ca3af;">v1.3.8</div>
       </div>
       ${player?.isAdmin ? `
       <div style="font-size:0.7rem;color:#fbbf24;margin:20px 0 8px;">👑 ADMIN</div>
@@ -3682,6 +3766,23 @@ function randomAvatar() {
                                  || root.child('players/admin_darius/isAdmin').val()  === true
                                  || root.child('players/admin_guigous/isAdmin').val() === true)",
       ".write": "auth != null"
+    },
+
+    "adminMessages": {
+      "global": {
+        ".read":  "auth != null",
+        ".write": "auth != null && (root.child('players/admin_titi/isAdmin').val()    === true
+                                   || root.child('players/admin_darius/isAdmin').val()  === true
+                                   || root.child('players/admin_guigous/isAdmin').val() === true)"
+      },
+      "private": {
+        "$uid": {
+          ".read":  "auth != null && $uid === auth.uid",
+          ".write": "auth != null && (root.child('players/admin_titi/isAdmin').val()    === true
+                                     || root.child('players/admin_darius/isAdmin').val()  === true
+                                     || root.child('players/admin_guigous/isAdmin').val() === true)"
+        }
+      }
     }
 
   }
@@ -3929,6 +4030,7 @@ function updateHomeScreen() {
           <button style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="openAdminEventPanel()">⚡ Déclencher Événement</button>
           <button style="background:linear-gradient(135deg,#ef4444,#b91c1c);" onclick="stopAdminEvent()">🛑 Stopper Événement</button>
           <button style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;" onclick="openPrestigeModal()">⭐ Test Prestige</button>
+          <button style="background:linear-gradient(135deg,#0ea5e9,#0284c7);" onclick="openAdminMsgPanel()">📨 Envoyer un message</button>
         </div>
       </div>
     `;
@@ -4156,6 +4258,268 @@ function adminReset() {
     alert('✅ Local réinitialisé !');
     location.reload();
   }
+}
+
+// ========================================
+// 📨 SYSTÈME DE MESSAGERIE ADMIN
+// ========================================
+
+let _currentBannerMsgId = null;
+let _msgListener = null;
+
+// ----- ADMIN : ouvrir le panneau d'envoi -----
+async function openAdminMsgPanel() {
+  if (!player?.isAdmin || !firebaseReady) {
+    alert('❌ Firebase requis pour cette action.');
+    return;
+  }
+
+  // Charger la liste des joueurs depuis /leaderboard
+  const snap = await database.ref('leaderboard').once('value');
+  const data = snap.val() || {};
+  const entries = Object.entries(data).filter(([, p]) => p.username && !p.isAdmin);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'adminMsgOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:20000;overflow-y:auto;padding:20px;';
+  overlay.innerHTML = `
+    <div style="max-width:680px;margin:0 auto;background:#1a1a2e;border:3px solid #0ea5e9;border-radius:20px;padding:25px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="color:#0ea5e9;font-size:0.85rem;">📨 ENVOYER UN MESSAGE</h2>
+        <button class="danger" style="margin:0;" onclick="document.getElementById('adminMsgOverlay').remove()">✖</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <div style="font-size:0.6rem;color:#9ca3af;margin-bottom:6px;">🎯 Destinataire</div>
+          <select id="amsg_target" style="width:100%;background:#000;color:#fff;border:2px solid #0ea5e9;border-radius:8px;padding:10px;font-family:'Press Start 2P';font-size:0.6rem;">
+            <option value="all">🌍 Tous les joueurs</option>
+            ${entries.map(([uid, p]) => `<option value="${uid}">${p.username} (Niv.${p.level||1})</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div style="font-size:0.6rem;color:#9ca3af;margin-bottom:6px;">📝 Objet (optionnel)</div>
+          <input id="amsg_subject" type="text" placeholder="ex: Événement spécial !" style="width:100%;background:#000;color:#fff;border:2px solid #0ea5e9;border-radius:8px;padding:10px;font-family:'Press Start 2P';font-size:0.55rem;">
+        </div>
+        <div>
+          <div style="font-size:0.6rem;color:#9ca3af;margin-bottom:6px;">💬 Message</div>
+          <textarea id="amsg_body" rows="5" placeholder="Écris ton message ici..." style="width:100%;background:#000;color:#fff;border:2px solid #0ea5e9;border-radius:8px;padding:10px;font-family:'Press Start 2P';font-size:0.55rem;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+        <button style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:10px;color:#fff;padding:14px;font-family:'Press Start 2P';font-size:0.65rem;cursor:pointer;" onclick="sendAdminMsg()">📨 ENVOYER</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// ----- ADMIN : envoyer le message -----
+async function sendAdminMsg() {
+  const target = document.getElementById('amsg_target').value;
+  const subject = document.getElementById('amsg_subject').value.trim() || 'Message de l\'équipe Admin';
+  const body = document.getElementById('amsg_body').value.trim();
+
+  if (!body) { alert('⚠️ Le message est vide !'); return; }
+
+  const msgData = {
+    subject,
+    body,
+    from: player.username,
+    ts: Date.now(),
+    target // 'all' ou uid
+  };
+
+  try {
+    if (target === 'all') {
+      // Message global lisible par tous → /adminMessages/global/
+      await database.ref('adminMessages/global').push(msgData);
+      alert(`✅ Message envoyé à tous les joueurs !`);
+    } else {
+      // Message privé → /adminMessages/private/{uid}/
+      await database.ref('adminMessages/private/' + target).push(msgData);
+      // Récupérer le nom du joueur pour l'alerte
+      const snap = await database.ref('leaderboard/' + target).once('value');
+      const name = snap.val()?.username || target;
+      alert(`✅ Message envoyé à ${name} !`);
+    }
+    document.getElementById('adminMsgOverlay')?.remove();
+  } catch(e) {
+    alert('❌ Erreur : ' + e.message);
+  }
+}
+
+// ----- JOUEUR : écouter les messages en temps réel -----
+function startMsgListener() {
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) return;
+  if (player?.isAdmin) return; // Les admins n'ont pas besoin de voir les messages
+
+  // Messages globaux
+  database.ref('adminMessages/global').on('child_added', (snap) => {
+    const msg = snap.val();
+    if (!msg) return;
+    const msgId = 'global_' + snap.key;
+    showMsgIfUnread(msgId, msg);
+  });
+
+  // Messages privés destinés à ce joueur
+  database.ref('adminMessages/private/' + currentUserId).on('child_added', (snap) => {
+    const msg = snap.val();
+    if (!msg) return;
+    const msgId = 'private_' + snap.key;
+    showMsgIfUnread(msgId, msg);
+  });
+}
+
+function showMsgIfUnread(msgId, msg) {
+  const readKey = 'schoolmesReadMsg_' + currentUserId;
+  let read = [];
+  try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
+  if (read.includes(msgId)) return;
+
+  // Afficher la bannière
+  _currentBannerMsgId = msgId;
+  const banner = document.getElementById('adminMsgBanner');
+  const textEl = document.getElementById('adminMsgBannerText');
+  const metaEl = document.getElementById('adminMsgBannerMeta');
+
+  if (!banner || !textEl) return;
+
+  const d = new Date(msg.ts);
+  const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+
+  textEl.innerHTML = `<strong style="color:#fbbf24;font-size:0.55rem;">${escapeHtml(msg.subject)}</strong>\n\n${escapeHtml(msg.body)}`;
+  metaEl.textContent = `👑 ${msg.from}  •  ${dateStr}`;
+  banner.classList.add('show');
+  document.getElementById('adminMsgDot').classList.add('show');
+}
+
+function closeAdminMsgBanner() {
+  document.getElementById('adminMsgBanner').classList.remove('show');
+}
+
+function markCurrentMsgRead() {
+  if (!_currentBannerMsgId) return;
+  const readKey = 'schoolmesReadMsg_' + currentUserId;
+  let read = [];
+  try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
+  if (!read.includes(_currentBannerMsgId)) read.push(_currentBannerMsgId);
+  localStorage.setItem(readKey, JSON.stringify(read));
+  closeAdminMsgBanner();
+  updateMsgDot();
+  _currentBannerMsgId = null;
+}
+
+async function updateMsgDot() {
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_') || player?.isAdmin) return;
+  const readKey = 'schoolmesReadMsg_' + currentUserId;
+  let read = [];
+  try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
+
+  let unread = 0;
+  try {
+    const [gSnap, pSnap] = await Promise.all([
+      database.ref('adminMessages/global').once('value'),
+      database.ref('adminMessages/private/' + currentUserId).once('value')
+    ]);
+    const gData = gSnap.val() || {};
+    const pData = pSnap.val() || {};
+    Object.keys(gData).forEach(k => { if (!read.includes('global_' + k)) unread++; });
+    Object.keys(pData).forEach(k => { if (!read.includes('private_' + k)) unread++; });
+  } catch(e) {}
+
+  const dot = document.getElementById('adminMsgDot');
+  if (dot) {
+    if (unread > 0) dot.classList.add('show');
+    else dot.classList.remove('show');
+  }
+}
+
+// ----- Boîte de réception joueur -----
+async function openAdminMsgInbox() {
+  if (!firebaseReady || !currentUserId) return;
+  const readKey = 'schoolmesReadMsg_' + currentUserId;
+  let read = [];
+  try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
+
+  const overlay = document.createElement('div');
+  overlay.id = 'adminInboxOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:20000;overflow-y:auto;padding:20px;';
+  overlay.innerHTML = `
+    <div style="max-width:680px;margin:0 auto;background:#1a1a2e;border:3px solid #fbbf24;border-radius:20px;padding:25px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="color:#fbbf24;font-size:0.85rem;">📬 MES MESSAGES ADMIN</h2>
+        <button class="danger" style="margin:0;" onclick="document.getElementById('adminInboxOverlay').remove()">✖</button>
+      </div>
+      <div id="inboxMsgList"><div style="text-align:center;color:#9ca3af;font-size:0.6rem;padding:30px;">⏳ Chargement...</div></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  try {
+    const [gSnap, pSnap] = await Promise.all([
+      database.ref('adminMessages/global').once('value'),
+      database.ref('adminMessages/private/' + currentUserId).once('value')
+    ]);
+
+    const msgs = [];
+    const gData = gSnap.val() || {};
+    const pData = pSnap.val() || {};
+    Object.entries(gData).forEach(([k, v]) => msgs.push({ id: 'global_' + k, ...v, type: '🌍 Global' }));
+    Object.entries(pData).forEach(([k, v]) => msgs.push({ id: 'private_' + k, ...v, type: '📩 Privé' }));
+    msgs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    const listEl = document.getElementById('inboxMsgList');
+    if (!msgs.length) {
+      listEl.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:0.6rem;padding:40px;">📭 Aucun message pour l\'instant</div>';
+      return;
+    }
+
+    listEl.innerHTML = msgs.map(msg => {
+      const isRead = read.includes(msg.id);
+      const d = new Date(msg.ts);
+      const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+      return `
+        <div class="admin-msg-inbox-item ${isRead ? 'read' : 'unread'}" id="inboxItem_${msg.id}">
+          <div style="flex:1;">
+            <div style="font-size:0.5rem;color:#0ea5e9;margin-bottom:4px;">${msg.type} &nbsp;•&nbsp; 👑 ${escapeHtml(msg.from)} &nbsp;•&nbsp; ${dateStr}</div>
+            <div style="font-size:0.6rem;color:#fbbf24;margin-bottom:6px;">${escapeHtml(msg.subject)}</div>
+            <div style="font-size:0.55rem;color:#e2e8f0;line-height:1.6;">${escapeHtml(msg.body)}</div>
+          </div>
+          ${!isRead ? `<button onclick="markMsgReadById('${msg.id}')" style="background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;color:#fff;font-family:'Press Start 2P';font-size:0.45rem;padding:8px;cursor:pointer;white-space:nowrap;flex-shrink:0;">✅ Lu</button>` : '<span style="font-size:0.5rem;color:#10b981;">✔ Lu</span>'}
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    const listEl = document.getElementById('inboxMsgList');
+    if (listEl) listEl.innerHTML = `<div style="color:#ef4444;font-size:0.6rem;text-align:center;padding:20px;">Erreur : ${e.message}</div>`;
+  }
+}
+
+function markMsgReadById(msgId) {
+  const readKey = 'schoolmesReadMsg_' + currentUserId;
+  let read = [];
+  try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
+  if (!read.includes(msgId)) read.push(msgId);
+  localStorage.setItem(readKey, JSON.stringify(read));
+
+  // Mettre à jour visuellement
+  const item = document.getElementById('inboxItem_' + msgId);
+  if (item) {
+    item.classList.remove('unread');
+    item.classList.add('read');
+    const btn = item.querySelector('button');
+    if (btn) btn.replaceWith(Object.assign(document.createElement('span'), {
+      style: 'font-size:0.5rem;color:#10b981;', textContent: '✔ Lu'
+    }));
+  }
+  updateMsgDot();
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 // ========================================
@@ -6628,7 +6992,17 @@ var BREVET_QUESTIONS = {
     { theme:"Les territoires français", q:"Combien de départements et régions d'outre-mer (DROM) la France compte-t-elle ?", type:"qcm", choices:["5 (Guadeloupe, Martinique, Guyane, La Réunion, Mayotte)","3","7","4"], answer:0, explication:"La France compte 5 DROM : Guadeloupe, Martinique, Guyane, La Réunion et Mayotte." },
     { theme:"L'énergie", q:"Quelle est la principale source d'énergie électrique en France ?", type:"qcm", choices:["Le nucléaire","L'hydraulique","Le gaz naturel","Le solaire"], answer:0, explication:"La France produit environ 70% de son électricité à partir du nucléaire, ce qui la place en tête mondiale pour la part du nucléaire dans le mix énergétique." },
     { theme:"Les espaces productifs", q:"Qu'est-ce que la Silicon Valley ?", type:"qcm", choices:["Un pôle technologique mondial situé en Californie","Une vallée agricole productive aux USA","Un centre financier de New York","Une zone industrielle automobile au Michigan"], answer:0, explication:"La Silicon Valley (Californie) est le plus grand pôle mondial de l'innovation technologique, abritant des entreprises comme Apple, Google ou Meta." },
-    { theme:"Le changement climatique", q:"Quel accord international sur le climat est signé à Paris en 2015 ?", type:"qcm", choices:["L'accord de Paris (COP21)","Le protocole de Kyoto","Le traité de Maastricht","L'accord de Copenhague"], answer:0, explication:"L'accord de Paris, signé lors de la COP21 en décembre 2015, vise à limiter le réchauffement climatique à 1,5°C par rapport à l'ère préindustrielle." }
+    { theme:"Le changement climatique", q:"Quel accord international sur le climat est signé à Paris en 2015 ?", type:"qcm", choices:["L'accord de Paris (COP21)","Le protocole de Kyoto","Le traité de Maastricht","L'accord de Copenhague"], answer:0, explication:"L'accord de Paris, signé lors de la COP21 en décembre 2015, vise à limiter le réchauffement climatique à 1,5°C par rapport à l'ère préindustrielle." },
+    // ── Révolution française complémentaire ──
+    { theme:"La Révolution française", q:"Quel événement marque symboliquement le début de la Révolution française en 1789 ?", type:"qcm", choices:["La prise de la Bastille le 14 juillet","La fuite de Louis XVI","L'exécution de Marie-Antoinette","La Terreur"], answer:0, explication:"La prise de la Bastille le 14 juillet 1789 symbolise le début de la Révolution française. Cette date est devenue la fête nationale française." },
+    { theme:"La Révolution française", q:"Que déclare la DDHC de 1789 dans son article premier ?", type:"qcm", choices:["Les hommes naissent et demeurent libres et égaux en droits","La souveraineté appartient au roi","La France est une République","Tous les citoyens doivent payer l'impôt"], answer:0, explication:"L'article 1er de la Déclaration des droits de l'homme et du citoyen (1789) proclame l'égalité naturelle et la liberté de tous les hommes." },
+    { theme:"La Révolution française", q:"Quel régime politique Napoléon Bonaparte instaure-t-il en 1804 ?", type:"qcm", choices:["L'Empire","La République","La Monarchie constitutionnelle","La Terreur"], answer:0, explication:"Napoléon Bonaparte se proclame Empereur des Français le 2 décembre 1804 lors de son sacre à Notre-Dame de Paris." },
+    // ── Guerres mondiales complémentaires ──
+    { theme:"La Première Guerre mondiale", q:"À quoi correspond le 11 novembre 1918 ?", type:"qcm", choices:["L'armistice de la Première Guerre mondiale","Le début de la bataille de la Marne","La capitulation de l'Allemagne nazie","Le traité de Versailles"], answer:0, explication:"Le 11 novembre 1918 à 11h, l'armistice est signé entre les Alliés et l'Allemagne, mettant fin aux combats de la Première Guerre mondiale." },
+    { theme:"La Seconde Guerre mondiale", q:"Qu'est-ce que la collaboration en France sous l'Occupation ?", type:"qcm", choices:["La coopération du régime de Vichy avec l'Allemagne nazie","La résistance armée contre les Allemands","L'aide aux Juifs persécutés","L'alliance militaire franco-britannique"], answer:0, explication:"La collaboration désigne la politique de coopération du gouvernement de Vichy (Pétain) avec l'occupant nazi allemand entre 1940 et 1944." },
+    // ── Géographie complémentaire ──
+    { theme:"La France dans le monde", q:"Quelle est la capitale de la France ?", type:"qcm", choices:["Paris","Lyon","Marseille","Bordeaux"], answer:0, explication:"Paris est la capitale et la plus grande ville de France, ainsi que le siège des principales institutions de la République." },
+    { theme:"La mondialisation", q:"Qu'est-ce que l'ONU ?", type:"qcm", choices:["L'Organisation des Nations Unies, créée en 1945","Une union commerciale européenne","Une alliance militaire de l'OTAN","Un traité sur le commerce mondial"], answer:0, explication:"L'ONU (Organisation des Nations Unies) a été fondée en 1945 pour maintenir la paix et la sécurité internationales." }
   ],
   svt: [
     { theme:"La génétique", q:"Quel est le support de l'information génétique dans les cellules ?", type:"qcm", choices:["L'ADN (Acide désoxyribonucléique)","L'ARN","Les protéines","Les chromosomes seuls"], answer:0, explication:"L'ADN (Acide désoxyribonucléique) est la molécule qui porte l'information génétique. Il est organisé en chromosomes dans le noyau de la cellule." },
@@ -6641,7 +7015,16 @@ var BREVET_QUESTIONS = {
     { theme:"La nutrition", q:"Quel nutriment est la principale source d'énergie immédiate pour l'organisme ?", type:"qcm", choices:["Les glucides (sucres)","Les lipides (graisses)","Les protéines","Les vitamines"], answer:0, explication:"Les glucides (sucres) sont la principale source d'énergie rapide pour les cellules. Le glucose est utilisé directement lors de la respiration cellulaire." },
     { theme:"La reproduction humaine", q:"Combien de chromosomes contient une cellule humaine somatique (non sexuelle) ?", type:"qcm", choices:["46 chromosomes (23 paires)","23 chromosomes","48 chromosomes","44 chromosomes"], answer:0, explication:"Une cellule somatique humaine contient 46 chromosomes organisés en 23 paires (diploïde). Les gamètes en contiennent 23 (haploïdes)." },
     { theme:"L'immunologie", q:"Quel type de cellule est au cœur de la réponse immunitaire adaptative ?", type:"qcm", choices:["Les lymphocytes (B et T)","Les hématies","Les plaquettes","Les neurones"], answer:0, explication:"Les lymphocytes B (produisant les anticorps) et T (détruisant les cellules infectées) sont les acteurs principaux de la réponse immunitaire adaptative." },
-    { theme:"La génétique", q:"Que signifie 'être hétérozygote' pour un gène ?", type:"qcm", choices:["Posséder deux allèles différents pour ce gène","Posséder deux allèles identiques","Ne pas posséder le gène","Avoir une mutation génétique"], answer:0, explication:"Un individu hétérozygote possède deux allèles différents pour un même gène (ex : Aa), contrairement à l'homozygote qui en a deux identiques (AA ou aa)." }
+    { theme:"La génétique", q:"Que signifie 'être hétérozygote' pour un gène ?", type:"qcm", choices:["Posséder deux allèles différents pour ce gène","Posséder deux allèles identiques","Ne pas posséder le gène","Avoir une mutation génétique"], answer:0, explication:"Un individu hétérozygote possède deux allèles différents pour un même gène (ex : Aa), contrairement à l'homozygote qui en a deux identiques (AA ou aa)." },
+    // ── SVT complémentaire ──
+    { theme:"Le corps humain", q:"Quel organe est appelé la 'pompe' du corps humain ?", type:"qcm", choices:["Le cœur","Le foie","Le poumon","Le cerveau"], answer:0, explication:"Le cœur est un muscle creux qui pompe le sang en permanence pour l'envoyer dans tout l'organisme via les artères." },
+    { theme:"Le corps humain", q:"Quel organe filtre le sang et produit l'urine ?", type:"qcm", choices:["Les reins","Le foie","La rate","Le pancréas"], answer:0, explication:"Les reins filtrent le sang (environ 180 L/jour) et éliminent les déchets sous forme d'urine." },
+    { theme:"L'écologie", q:"Qu'est-ce que la photosynthèse ?", type:"qcm", choices:["La production de matière organique par les plantes grâce à la lumière et au CO₂","La respiration des plantes la nuit","La décomposition de matière organique","L'absorption d'eau par les racines"], answer:0, explication:"La photosynthèse : 6CO₂ + 6H₂O + lumière → glucose (C₆H₁₂O₆) + 6O₂. Les plantes produisent leur propre matière organique grâce à l'énergie lumineuse." },
+    { theme:"L'évolution", q:"Qu'est-ce qu'une espèce en biologie ?", type:"qcm", choices:["Un groupe d'individus pouvant se reproduire entre eux et donner une descendance fertile","Tout groupe d'animaux vivant ensemble","Une catégorie arbitraire des scientifiques","Un groupe ayant la même apparence"], answer:0, explication:"Une espèce est définie comme un groupe d'individus capables de se reproduire entre eux et de donner une descendance fertile (critère de l'interfécondité)." },
+    // ── Astronomie ──
+    { theme:"Astronomie", q:"Quelle est la planète la plus proche du Soleil ?", type:"qcm", choices:["Mercure","Vénus","Terre","Mars"], answer:0, explication:"Mercure est la planète la plus proche du Soleil, à environ 58 millions de km en moyenne. Elle effectue sa révolution en seulement 88 jours." },
+    { theme:"Astronomie", q:"Quelle planète est surnommée la 'planète rouge' ?", type:"qcm", choices:["Mars","Vénus","Jupiter","Saturne"], answer:0, explication:"Mars est appelée la planète rouge en raison de son sol riche en oxyde de fer (rouille) qui lui donne cette couleur caractéristique." },
+    { theme:"Astronomie", q:"Quelle est la durée approximative d'une révolution de la Terre autour du Soleil ?", type:"qcm", choices:["365,25 jours (1 an)","24 heures","30 jours","100 jours"], answer:0, explication:"La Terre tourne autour du Soleil en 365 jours et 6 heures environ (365,25 jours), ce qui explique les années bissextiles tous les 4 ans." }
   ],
   pc: [
     { theme:"La matière", q:"Quelle est la formule chimique de l'eau ?", type:"qcm", choices:["H₂O","CO₂","NaCl","H₂SO₄"], answer:0, explication:"L'eau est formée de 2 atomes d'hydrogène (H) et 1 atome d'oxygène (O), d'où sa formule H₂O." },
@@ -6654,7 +7037,13 @@ var BREVET_QUESTIONS = {
     { theme:"La chimie organique", q:"Quels sont les deux éléments principaux constituant les molécules organiques ?", type:"qcm", choices:["Le carbone (C) et l'hydrogène (H)","L'oxygène et l'azote","Le sodium et le chlore","Le fer et le cuivre"], answer:0, explication:"Les molécules organiques sont principalement constituées de carbone et d'hydrogène (auxquels s'ajoutent souvent O, N, S, P...)." },
     { theme:"L'énergie", q:"Quelle est l'unité d'énergie dans le Système International ?", type:"qcm", choices:["Le Joule (J)","Le Watt (W)","La calorie (cal)","Le Newton (N)"], answer:0, explication:"L'énergie se mesure en Joules (J) dans le SI. La puissance (énergie par unité de temps) se mesure en Watts : 1 W = 1 J/s." },
     { theme:"Les atomes", q:"De quoi est composé le noyau d'un atome ?", type:"qcm", choices:["De protons (chargés +) et de neutrons (neutres)","D'électrons et de protons","Uniquement de protons","D'électrons et de neutrons"], answer:0, explication:"Le noyau atomique est constitué de protons (charge positive) et de neutrons (neutres). Les électrons (charge négative) gravitent autour du noyau." },
-    { theme:"Les signaux", q:"Qu'est-ce que la fréquence d'un signal sonore ?", type:"qcm", choices:["Le nombre de vibrations par seconde, exprimé en Hertz (Hz)","L'amplitude des vibrations en décibels","La vitesse du son dans l'air","La longueur d'onde du son"], answer:0, explication:"La fréquence est le nombre d'oscillations par seconde (en Hz). Elle détermine la hauteur du son : plus la fréquence est élevée, plus le son est aigu." }
+    { theme:"Les signaux", q:"Qu'est-ce que la fréquence d'un signal sonore ?", type:"qcm", choices:["Le nombre de vibrations par seconde, exprimé en Hertz (Hz)","L'amplitude des vibrations en décibels","La vitesse du son dans l'air","La longueur d'onde du son"], answer:0, explication:"La fréquence est le nombre d'oscillations par seconde (en Hz). Elle détermine la hauteur du son : plus la fréquence est élevée, plus le son est aigu." },
+    // ── Physique-chimie complémentaire ──
+    { theme:"La matière", q:"Quelle est la formule chimique du dioxyde de carbone ?", type:"qcm", choices:["CO₂","H₂O","O₂","NaCl"], answer:0, explication:"Le dioxyde de carbone (CO₂) est composé d'un atome de carbone et deux atomes d'oxygène. C'est le principal gaz à effet de serre d'origine humaine." },
+    { theme:"La matière", q:"Quel est le symbole chimique du fer ?", type:"qcm", choices:["Fe","F","Fr","Fi"], answer:0, explication:"Le fer a pour symbole Fe (du latin 'ferrum'). C'est le métal le plus abondant sur Terre et le composant principal de l'acier." },
+    { theme:"La mécanique", q:"Quelle est l'unité de la masse dans le Système International ?", type:"qcm", choices:["Le kilogramme (kg)","Le Newton (N)","Le mètre (m)","Le litre (L)"], answer:0, explication:"La masse se mesure en kilogrammes (kg) dans le SI. Ne pas confondre avec le poids (force) qui s'exprime en Newtons (N)." },
+    { theme:"L'électricité", q:"Quelle est l'unité de la tension électrique ?", type:"qcm", choices:["Le Volt (V)","L'Ampère (A)","L'Ohm (Ω)","Le Watt (W)"], answer:0, explication:"La tension (ou différence de potentiel) se mesure en Volts (V). L'intensité en Ampères (A), la résistance en Ohms (Ω), la puissance en Watts (W)." },
+    { theme:"L'optique", q:"Quelles sont les trois couleurs primaires de la lumière (synthèse additive) ?", type:"qcm", choices:["Rouge, vert, bleu (RVB)","Rouge, jaune, bleu","Cyan, magenta, jaune","Rouge, orange, violet"], answer:0, explication:"Les trois couleurs primaires de la lumière (synthèse additive) sont le rouge, le vert et le bleu (RVB/RGB). Leur mélange donne du blanc." }
   ],
   emc: [
     { theme:"La démocratie", q:"Quels sont les trois pouvoirs fondamentaux de l'État dans une démocratie (séparation des pouvoirs) ?", type:"qcm", choices:["Le pouvoir législatif, exécutif et judiciaire","Le pouvoir politique, militaire et économique","Le pouvoir du président, du premier ministre et du maire","Le pouvoir de l'État, de la presse et du peuple"], answer:0, explication:"La théorie de la séparation des pouvoirs (Montesquieu) distingue le pouvoir législatif (faire les lois), exécutif (appliquer les lois) et judiciaire (juger)." },
@@ -6666,7 +7055,13 @@ var BREVET_QUESTIONS = {
     { theme:"Les droits de l'homme", q:"En quelle année la Déclaration universelle des droits de l'homme est-elle adoptée par l'ONU ?", type:"qcm", choices:["1948","1945","1789","1919"], answer:0, explication:"La Déclaration universelle des droits de l'homme (DUDH) est adoptée par l'Assemblée générale de l'ONU le 10 décembre 1948." },
     { theme:"La justice", q:"Quelle est la présomption d'innocence ?", type:"qcm", choices:["Tout accusé est considéré innocent jusqu'à ce que sa culpabilité soit prouvée","Tout accusé est coupable jusqu'à preuve du contraire","Le juge décide de la culpabilité avant le procès","Tout citoyen peut être emprisonné préventivement"], answer:0, explication:"La présomption d'innocence est un principe fondamental : toute personne accusée est considérée innocente jusqu'à ce qu'un tribunal la déclare coupable." },
     { theme:"La démocratie participative", q:"Qu'est-ce qu'un référendum ?", type:"qcm", choices:["Un vote direct du peuple sur une question politique importante","Une élection de représentants","Un vote du parlement sur une loi","Une pétition citoyenne"], answer:0, explication:"Un référendum est une consultation directe du peuple sur une question précise. En France, le référendum est prévu par l'article 11 de la Constitution." },
-    { theme:"Les valeurs républicaines", q:"Que signifie le principe de laïcité à l'école en France ?", type:"qcm", choices:["L'enseignement public est neutre religieusement et les signes religieux ostentatoires sont interdits","La religion est interdite dans la vie privée","Les élèves ne peuvent pas croire en une religion","Seule la religion catholique est tolérée"], answer:0, explication:"À l'école publique, la laïcité implique la neutralité de l'enseignement et interdit le port de signes religieux ostensibles par les élèves (loi de 2004)." }
+    { theme:"Les valeurs républicaines", q:"Que signifie le principe de laïcité à l'école en France ?", type:"qcm", choices:["L'enseignement public est neutre religieusement et les signes religieux ostentatoires sont interdits","La religion est interdite dans la vie privée","Les élèves ne peuvent pas croire en une religion","Seule la religion catholique est tolérée"], answer:0, explication:"À l'école publique, la laïcité implique la neutralité de l'enseignement et interdit le port de signes religieux ostensibles par les élèves (loi de 2004)." },
+    // ── EMC complémentaire ──
+    { theme:"La citoyenneté", q:"À quel âge obtient-on la majorité civile et le droit de vote en France ?", type:"qcm", choices:["18 ans","16 ans","21 ans","20 ans"], answer:0, explication:"En France, la majorité est fixée à 18 ans depuis 1974. Elle donne le droit de vote et la pleine capacité juridique." },
+    { theme:"Les institutions", q:"Quelle est la durée du mandat du Président de la République en France ?", type:"qcm", choices:["5 ans (quinquennat)","4 ans","7 ans","6 ans"], answer:0, explication:"Le mandat présidentiel est de 5 ans (quinquennat) depuis la réforme de 2000. Il est renouvelable une seule fois consécutivement." },
+    { theme:"Les droits fondamentaux", q:"Les droits de l'homme sont qualifiés d'universels car :", type:"qcm", choices:["Ils s'appliquent à tous les êtres humains sans exception","Ils varient selon les pays","Seuls les citoyens adultes en bénéficient","Ils sont accordés par chaque État séparément"], answer:0, explication:"Les droits humains sont universels : ils appartiennent à tous les êtres humains du fait de leur humanité, indépendamment de leur nationalité, religion ou statut." },
+    { theme:"La vie démocratique", q:"Quel élu dirige une commune en France ?", type:"qcm", choices:["Le maire","Le préfet","Le député","Le président du conseil régional"], answer:0, explication:"Le maire est élu par le conseil municipal et dirige la commune. Il est à la fois agent de l'État et exécutif local." },
+    { theme:"La vie démocratique", q:"Le Parlement français est composé de :", type:"qcm", choices:["L'Assemblée nationale et le Sénat","L'Assemblée nationale seule","Le Sénat et le gouvernement","Le Président et les ministres"], answer:0, explication:"Le Parlement français est bicaméral : il comprend l'Assemblée nationale (577 députés élus au suffrage universel direct) et le Sénat (348 sénateurs)." }
   ],
   francais: [
     { theme:"La grammaire", q:"Qu'est-ce qu'un complément d'objet indirect (COI) ?", type:"qcm", choices:["Un groupe nominal ou pronominal rattaché au verbe par une préposition (à, de...)","Un groupe nominal directement relié au verbe sans préposition","Un adjectif qualificatif","Un adverbe de manière"], answer:0, explication:"Le COI est relié au verbe par une préposition (à, de, en...). Ex : 'Je pense à toi' → 'à toi' est le COI du verbe 'penser'." },
@@ -6678,7 +7073,29 @@ var BREVET_QUESTIONS = {
     { theme:"Les connecteurs logiques", q:"Quel connecteur logique exprime la conséquence ?", type:"qcm", choices:["Donc, ainsi, par conséquent","Mais, cependant, or","Car, parce que, puisque","D'abord, ensuite, enfin"], answer:0, explication:"Les connecteurs de conséquence (donc, ainsi, par conséquent, c'est pourquoi...) marquent une relation de cause à effet dans le discours." },
     { theme:"L'argumentation", q:"Qu'est-ce qu'une thèse dans un texte argumentatif ?", type:"qcm", choices:["L'idée principale que l'auteur cherche à défendre","Un exemple illustrant une idée","Un argument contre le point de vue de l'auteur","Une anecdote introductive"], answer:0, explication:"La thèse est l'idée directrice que l'auteur soutient et cherche à faire partager au lecteur, grâce à des arguments et des exemples." },
     { theme:"Le récit", q:"Qu'est-ce que le schéma narratif ?", type:"qcm", choices:["Les 5 étapes d'un récit : situation initiale, élément perturbateur, péripéties, résolution, situation finale","Le plan d'un texte argumentatif","La structure d'un poème","Les règles d'un dialogue"], answer:0, explication:"Le schéma narratif structure tout récit en 5 étapes : situation initiale (équilibre), élément perturbateur, péripéties (actions), résolution du problème, situation finale (nouvel équilibre)." },
-    { theme:"La syntaxe", q:"Quelle est la différence entre une proposition principale et une subordonnée ?", type:"qcm", choices:["La principale peut exister seule ; la subordonnée dépend de la principale","La subordonnée est toujours plus longue","La principale contient toujours un verbe, la subordonnée non","Les deux sont indépendantes l'une de l'autre"], answer:0, explication:"La proposition principale a un sens complet et peut exister seule. La subordonnée est dépendante de la principale et joue un rôle syntaxique en son sein." }
+    { theme:"La syntaxe", q:"Quelle est la différence entre une proposition principale et une subordonnée ?", type:"qcm", choices:["La principale peut exister seule ; la subordonnée dépend de la principale","La subordonnée est toujours plus longue","La principale contient toujours un verbe, la subordonnée non","Les deux sont indépendantes l'une de l'autre"], answer:0, explication:"La proposition principale a un sens complet et peut exister seule. La subordonnée est dépendante de la principale et joue un rôle syntaxique en son sein." },
+    // ── Grammaire complémentaire ──
+    { theme:"Grammaire", q:"Une phrase minimale contient obligatoirement :", type:"qcm", choices:["Un sujet et un verbe","Un nom seul","Un verbe seul","Un adjectif"], answer:0, explication:"La phrase minimale (ou noyau verbal) est composée d'un groupe sujet et d'un groupe verbal. Ex : 'Le chat dort.'" },
+    { theme:"Grammaire", q:"Le sujet d'un verbe répond à la question :", type:"qcm", choices:["Qui est-ce qui... ?","À qui ?","Quoi ?","Comment ?"], answer:0, explication:"Pour trouver le sujet, on pose la question 'Qui est-ce qui ?' ou 'Qu'est-ce qui ?' avant le verbe." },
+    { theme:"Grammaire", q:"L'adjectif qualificatif s'accorde en genre et en nombre avec :", type:"qcm", choices:["Le nom qu'il qualifie","Le verbe","Le sujet de la phrase","Le complément d'objet"], answer:0, explication:"L'adjectif qualificatif s'accorde toujours avec le nom (ou pronom) auquel il se rapporte : masculin/féminin, singulier/pluriel." },
+    { theme:"Grammaire", q:"Quelle est la nature du mot 'rapidement' dans 'Il court rapidement' ?", type:"qcm", choices:["Adverbe de manière","Adjectif","Nom commun","Verbe"], answer:0, explication:"'Rapidement' est un adverbe de manière formé sur l'adjectif 'rapide'. Les adverbes en -ment sont invariables." },
+    // ── Orthographe ──
+    { theme:"Orthographe", q:"Quel est le pluriel de 'cheval' ?", type:"qcm", choices:["chevaux","chevals","chevales","chevaus"], answer:0, explication:"Les noms en -al font leur pluriel en -aux : cheval → chevaux. Exceptions : bals, carnavals, festivals..." },
+    { theme:"Orthographe", q:"Quel est le pluriel de 'genou' ?", type:"qcm", choices:["genoux","genous","genoues","genouils"], answer:0, explication:"7 noms en -ou prennent un x au pluriel : bijoux, cailloux, choux, genoux, hiboux, joujoux, poux. Les autres prennent -s." },
+    { theme:"Orthographe", q:"'Je me suis lavé(e) les mains.' Le participe 'lavé' s'accorde-t-il ?", type:"qcm", choices:["Non, car le COD 'les mains' est après le participe","Oui, avec le sujet","Oui, avec 'mains'","Non, jamais avec les verbes pronominaux"], answer:0, explication:"Avec être (verbes pronominaux), le participe s'accorde avec le COD si celui-ci est placé AVANT. Ici, 'les mains' est après → pas d'accord." },
+    { theme:"Orthographe", q:"'Ces/ses/c'est/s'est' : lequel convient dans 'Il ___ blessé' ?", type:"qcm", choices:["s'est","ses","ces","c'est"], answer:0, explication:"'S'est' est la forme du verbe se blesser au passé composé (se + être). On peut le remplacer par 'il s'était blessé' pour vérifier." },
+    // ── Conjugaison ──
+    { theme:"Conjugaison", q:"Le futur simple de 'être' à la 1re personne du singulier est :", type:"qcm", choices:["serai","suis","étais","serais"], answer:0, explication:"Au futur simple : je serai, tu seras, il sera, nous serons, vous serez, ils seront." },
+    { theme:"Conjugaison", q:"L'imparfait de l'indicatif sert à exprimer :", type:"qcm", choices:["Une action passée durable ou répétée","Une action passée brève et précise","Une action future","Une action hypothétique"], answer:0, explication:"L'imparfait exprime une action passée qui dure, se répète ou sert de cadre. Ex : 'Il neigeait quand je suis sorti.'" },
+    { theme:"Conjugaison", q:"'Que tu finisses' est au mode :", type:"qcm", choices:["Subjonctif présent","Impératif","Conditionnel","Indicatif"], answer:0, explication:"'Que tu finisses' est au subjonctif présent (verbe finir, 2e groupe). Le subjonctif est souvent introduit par 'que'." },
+    // ── Vocabulaire ──
+    { theme:"Vocabulaire", q:"Un synonyme de 'heureux' est :", type:"qcm", choices:["content","triste","fatigué","fâché"], answer:0, explication:"Heureux, content, joyeux, ravi, comblé sont synonymes (même sens approché). Triste en est l'antonyme." },
+    { theme:"Vocabulaire", q:"Un antonyme (contraire) de 'courageux' est :", type:"qcm", choices:["lâche","brave","audacieux","intrépide"], answer:0, explication:"L'antonyme est le mot de sens contraire. Le contraire de courageux est lâche (ou peureux, poltron)." },
+    { theme:"Vocabulaire", q:"Le préfixe 'in-' dans 'invraisemblable' exprime :", type:"qcm", choices:["La négation / le contraire","Le mouvement vers l'intérieur","La répétition","L'excès"], answer:0, explication:"Le préfixe 'in-' (ou im-, ir-, il-) exprime la négation ou le contraire : invraisemblable = pas vraisemblable." },
+    // ── Littérature ──
+    { theme:"Littérature", q:"Qui est l'auteur de 'Les Misérables' ?", type:"qcm", choices:["Victor Hugo","Émile Zola","Molière","Honoré de Balzac"], answer:0, explication:"Victor Hugo publie 'Les Misérables' en 1862. Ce roman social suit Jean Valjean et dénonce la misère au XIXe siècle." },
+    { theme:"Littérature", q:"Quel auteur du XVIIe siècle est célèbre pour ses fables mettant en scène des animaux ?", type:"qcm", choices:["Jean de La Fontaine","Molière","Racine","Corneille"], answer:0, explication:"Jean de La Fontaine (1621-1695) est l'auteur des Fables, courts récits allégoriques mettant des animaux en scène pour illustrer des morales." },
+    { theme:"Littérature", q:"À quel mouvement littéraire appartient Victor Hugo ?", type:"qcm", choices:["Le Romantisme","Le Classicisme","Le Réalisme","Le Surréalisme"], answer:0, explication:"Victor Hugo est la figure de proue du Romantisme français (XIXe siècle), mouvement qui valorise les sentiments, la nature et le 'moi'." }
   ],
   maths: [
     { theme:"La géométrie", q:"Quelle est la formule de l'aire d'un disque de rayon r ?", type:"qcm", choices:["A = π × r²","A = 2 × π × r","A = π × d","A = r²"], answer:0, explication:"L'aire d'un disque est A = π × r², où r est le rayon. Le périmètre (circonférence) est quant à lui C = 2πr." },
@@ -6691,7 +7108,34 @@ var BREVET_QUESTIONS = {
     { theme:"Les équations", q:"Résoudre : 2x + 6 = 14. Quelle est la valeur de x ?", type:"qcm", choices:["x = 4","x = 10","x = 7","x = 3"], answer:0, explication:"2x + 6 = 14 → 2x = 14 - 6 → 2x = 8 → x = 8/2 → x = 4." },
     { theme:"La trigonométrie", q:"Dans un triangle rectangle, sin(angle) = ?", type:"qcm", choices:["côté opposé / hypoténuse","côté adjacent / hypoténuse","côté opposé / côté adjacent","hypoténuse / côté opposé"], answer:0, explication:"Dans un triangle rectangle : sin(α) = côté opposé / hypoténuse ; cos(α) = côté adjacent / hypoténuse ; tan(α) = côté opposé / côté adjacent." },
     { theme:"Les volumes", q:"Quelle est la formule du volume d'une sphère de rayon r ?", type:"qcm", choices:["V = (4/3) × π × r³","V = π × r²","V = 4 × π × r²","V = (1/3) × π × r³"], answer:0, explication:"Le volume d'une sphère est V = (4/3)πr³. La surface d'une sphère est S = 4πr²." },
-    { theme:"Les puissances", q:"Que vaut 2⁻³ ?", type:"qcm", choices:["1/8","−8","−6","1/6"], answer:0, explication:"Par définition, a⁻ⁿ = 1/aⁿ. Donc 2⁻³ = 1/2³ = 1/8." }
+    { theme:"Les puissances", q:"Que vaut 2⁻³ ?", type:"qcm", choices:["1/8","−8","−6","1/6"], answer:0, explication:"Par définition, a⁻ⁿ = 1/aⁿ. Donc 2⁻³ = 1/2³ = 1/8." },
+    // ── Calcul numérique ──
+    { theme:"Calcul", q:"5 + 3 × 2 = ?", type:"qcm", choices:["16","11","13","10"], answer:1, explication:"La priorité des opérations : on effectue d'abord la multiplication : 3×2=6, puis l'addition : 5+6=11." },
+    { theme:"Calcul", q:"12 ÷ 3 + 4 = ?", type:"qcm", choices:["8","6","7","10"], answer:0, explication:"Priorité : 12÷3=4, puis 4+4=8." },
+    { theme:"Calcul", q:"7² = ?", type:"qcm", choices:["14","49","21","28"], answer:1, explication:"7² = 7×7 = 49." },
+    { theme:"Calcul", q:"√64 = ?", type:"qcm", choices:["6","7","8","9"], answer:2, explication:"8×8=64, donc √64 = 8." },
+    { theme:"Calcul", q:"3³ = ?", type:"qcm", choices:["6","9","27","81"], answer:2, explication:"3³ = 3×3×3 = 27." },
+    { theme:"Calcul", q:"2 × (6 + 4) = ?", type:"qcm", choices:["20","16","10","24"], answer:0, explication:"On calcule d'abord la parenthèse : 6+4=10, puis 2×10=20." },
+    { theme:"Calcul", q:"10 − 3² = ?", type:"qcm", choices:["1","7","49","-1"], answer:0, explication:"3²=9, puis 10−9=1." },
+    { theme:"Calcul", q:"25 % de 80 = ?", type:"qcm", choices:["10","15","20","25"], answer:2, explication:"25% = 1/4, donc 80÷4 = 20." },
+    { theme:"Calcul", q:"0,25 = ?", type:"qcm", choices:["1/2","1/4","1/5","1/8"], answer:1, explication:"0,25 = 25/100 = 1/4." },
+    // ── Fractions ──
+    { theme:"Fractions", q:"1/2 + 1/4 = ?", type:"qcm", choices:["3/4","2/6","1/6","1/8"], answer:0, explication:"On met au même dénominateur : 2/4 + 1/4 = 3/4." },
+    { theme:"Fractions", q:"2/3 + 1/3 = ?", type:"qcm", choices:["1","2/6","3/6","2"], answer:0, explication:"Même dénominateur : 2/3 + 1/3 = 3/3 = 1." },
+    { theme:"Fractions", q:"2/3 − 1/6 = ?", type:"qcm", choices:["1/2","1/3","1/6","2/9"], answer:0, explication:"4/6 − 1/6 = 3/6 = 1/2." },
+    { theme:"Fractions", q:"4/8 simplifié = ?", type:"qcm", choices:["1/2","1/4","2/3","3/4"], answer:0, explication:"On divise numérateur et dénominateur par 4 : 4/8 = 1/2." },
+    { theme:"Fractions", q:"7/3 en nombre mixte = ?", type:"qcm", choices:["2 + 1/3","3 + 1/7","1 + 3/7","2 + 3/7"], answer:0, explication:"7 ÷ 3 = 2 reste 1, donc 7/3 = 2 + 1/3." },
+    { theme:"Fractions", q:"9/6 simplifié = ?", type:"qcm", choices:["3/2","9/3","6/9","2/3"], answer:0, explication:"On divise par 3 : 9/6 = 3/2." },
+    { theme:"Fractions", q:"5/2 = ?", type:"qcm", choices:["2,5","2","3","1,5"], answer:0, explication:"5 ÷ 2 = 2,5." },
+    { theme:"Fractions", q:"3/8 × 4 = ?", type:"qcm", choices:["12/8","3/2","3/32","1/2"], answer:0, explication:"3/8 × 4 = 12/8 = 3/2." },
+    // ── Proportionnalité avancée ──
+    { theme:"Proportionnalité", q:"Échelle 1:100 signifie :", type:"qcm", choices:["La réalité est 100 fois plus grande que le dessin","Le dessin est 100 fois plus grand","Les deux sont identiques","La réalité est 10 fois plus grande"], answer:0, explication:"À l'échelle 1:100, 1 cm sur le dessin représente 100 cm (1 m) dans la réalité." },
+    { theme:"Proportionnalité", q:"Distance = vitesse × ?", type:"qcm", choices:["temps","masse","force","volume"], answer:0, explication:"La formule fondamentale est d = v × t (distance = vitesse × temps)." },
+    { theme:"Proportionnalité", q:"Augmenter de 100 % signifie :", type:"qcm", choices:["Doubler","Tripler","Diviser par 2","Ajouter 1"], answer:0, explication:"Augmenter de 100 % = ajouter 100 % de la valeur initiale, soit la doubler." },
+    // ── Statistiques avancées ──
+    { theme:"Statistiques", q:"Moyenne de 10, 12, 14 = ?", type:"qcm", choices:["12","11","13","10"], answer:0, explication:"(10+12+14) ÷ 3 = 36 ÷ 3 = 12." },
+    { theme:"Statistiques", q:"Sur un dé à 6 faces, probabilité d'obtenir un 6 = ?", type:"qcm", choices:["1/6","1/2","1/3","1"], answer:0, explication:"Il y a 1 chance sur 6 d'obtenir le 6 car le dé est équilibré et a 6 faces." },
+    { theme:"Statistiques", q:"Pile ou face : probabilité de pile = ?", type:"qcm", choices:["1/2","1/3","1/4","1"], answer:0, explication:"Une pièce a 2 faces équilibrées, donc la probabilité de pile est 1/2 = 0,5." }
   ],
   techno: [
     { theme:"Les systèmes numériques", q:"Que signifie 'bit' en informatique ?", type:"qcm", choices:["La plus petite unité d'information : 0 ou 1","Un octet (8 chiffres binaires)","Un million d'octets","Une unité de mesure de vitesse internet"], answer:0, explication:"Un bit (binary digit) est la plus petite unité d'information numérique : il vaut 0 ou 1. 8 bits forment 1 octet (byte)." },
