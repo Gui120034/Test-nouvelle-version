@@ -84,6 +84,249 @@ body {
 
 .screen.active { display: block; }
 
+/* ===== TRANSITIONS ENTRE ÉCRANS ===== */
+.screen {
+  animation: none;
+}
+.screen.screen-enter {
+  animation: screenSlideIn 0.28s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.screen.screen-exit {
+  animation: screenSlideOut 0.18s ease-in forwards;
+}
+@keyframes screenSlideIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes screenSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
+}
+
+/* ===== FOND ÉTOILÉ ANIMÉ ===== */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: starTwinkle linear infinite;
+  opacity: 0;
+}
+@keyframes starTwinkle {
+  0%   { opacity: 0;   transform: scale(0.5); }
+  40%  { opacity: 0.8; transform: scale(1); }
+  70%  { opacity: 0.4; transform: scale(0.8); }
+  100% { opacity: 0;   transform: scale(0.5); }
+}
+.shooting-star {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
+  border-radius: 2px;
+  animation: shootingStar 1.2s ease-out forwards;
+  opacity: 0;
+}
+@keyframes shootingStar {
+  0%   { opacity: 1; transform: translateX(0) translateY(0); }
+  100% { opacity: 0; transform: translateX(200px) translateY(80px); }
+}
+
+/* ===== FLASH RÉPONSE ===== */
+#answerFlash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99990;
+  opacity: 0;
+  transition: opacity 0.08s;
+}
+#answerFlash.correct {
+  background: radial-gradient(ellipse at center, rgba(16,185,129,0.35) 0%, transparent 70%);
+  animation: flashAnim 0.5s ease-out forwards;
+}
+#answerFlash.wrong {
+  background: radial-gradient(ellipse at center, rgba(239,68,68,0.4) 0%, transparent 70%);
+  animation: flashAnim 0.5s ease-out forwards;
+}
+@keyframes flashAnim {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ===== NOUVELLE CARTE PROFIL ACCUEIL ===== */
+#homeProfileCard {
+  background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(236,72,153,0.12));
+  border: 2px solid rgba(99,102,241,0.5);
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+#homeProfileCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(251,191,36,0.06));
+  pointer-events: none;
+}
+.home-profile-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.home-avatar-wrap {
+  width: 56px; height: 56px;
+  border: 3px solid #fbbf24;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px rgba(251,191,36,0.4);
+}
+.home-info-block { flex: 1; min-width: 0; }
+.home-username {
+  font-size: 0.75rem;
+  color: #fbbf24;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-league-line {
+  font-size: 0.45rem;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+.home-stats-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.home-stat-chip {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.45rem;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.home-stat-chip span { color: #fbbf24; font-size: 0.6rem; }
+.home-xp-bar-wrap {
+  margin-top: 12px;
+}
+.home-xp-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.42rem;
+  color: #9ca3af;
+  margin-bottom: 5px;
+}
+.home-xp-track {
+  height: 8px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+.home-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 0 8px rgba(16,185,129,0.5);
+}
+.home-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15));
+  border: 1px solid #f59e0b;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.45rem;
+  color: #fbbf24;
+  margin-top: 10px;
+}
+
+/* ===== GRILLE BOUTONS ACCUEIL ===== */
+#homeMenuGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.home-menu-card {
+  background: rgba(0,0,0,0.45);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 14px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  transition: border-color 0.2s, transform 0.12s, box-shadow 0.2s;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.42rem;
+  color: #e2e8f0;
+  text-align: center;
+  line-height: 1.5;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.home-menu-card:hover {
+  border-color: rgba(251,191,36,0.5);
+  box-shadow: 0 0 14px rgba(251,191,36,0.2);
+  transform: translateY(-2px);
+}
+.home-menu-card:active {
+  transform: translateY(2px) scale(0.96) !important;
+  box-shadow: none !important;
+  filter: brightness(0.85);
+}
+.home-menu-card .card-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.home-menu-card.card-play   { border-color: rgba(16,185,129,0.4);  background: rgba(16,185,129,0.08); }
+.home-menu-card.card-multi  { border-color: rgba(236,72,153,0.4);  background: rgba(236,72,153,0.08); }
+.home-menu-card.card-shop   { border-color: rgba(251,191,36,0.4);  background: rgba(251,191,36,0.08); }
+.home-menu-card.card-lb     { border-color: rgba(99,102,241,0.4);  background: rgba(99,102,241,0.08); }
+.home-menu-card.card-brevet { border-color: rgba(139,92,246,0.4);  background: rgba(139,92,246,0.08); }
+.home-menu-card.card-talent { border-color: rgba(245,158,11,0.4);  background: rgba(245,158,11,0.08); }
+.home-menu-card.card-quest  { border-color: rgba(16,185,129,0.4);  background: rgba(16,185,129,0.06); }
+.home-menu-card.card-online { border-color: rgba(14,165,233,0.4);  background: rgba(14,165,233,0.08); }
+.home-menu-card.card-avatar { border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.08); }
+.home-menu-card.card-save   { border-color: rgba(107,114,128,0.4); background: rgba(107,114,128,0.06); }
+.home-menu-card.card-settings { border-color: rgba(107,114,128,0.4); background: rgba(107,114,128,0.06); }
+.home-menu-card.card-logout { border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.05); }
+
+/* Notification dot sur une carte */
+.card-notif {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 8px; height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ef4444;
+  animation: dotPulse 1.5s infinite;
+}
+.home-menu-card { position: relative; }
+
+
 .game-title {
   font-size: 2.5rem;
   text-align: center;
@@ -1281,7 +1524,46 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   transform: translateY(-3px);
   box-shadow: 0 6px 25px rgba(16,185,129,0.6);
 }
-#adminMsgDot {
+#adminMsgScreen.msg-type-update {
+  background: linear-gradient(135deg, #0a0a1e 60%, #0f172a);
+}
+#adminMsgScreen.msg-type-update .msg-crown {
+  animation: updateBounce 0.6s ease infinite alternate;
+}
+#adminMsgScreen.msg-type-update .msg-card {
+  border-color: #0ea5e9;
+  background: rgba(14,165,233,0.08);
+  box-shadow: 0 0 30px rgba(14,165,233,0.3);
+  animation: updateGlow 2s ease infinite;
+}
+#adminMsgScreen.msg-type-update h1 {
+  color: #0ea5e9;
+}
+#adminMsgScreen.msg-type-update .msg-subject {
+  color: #0ea5e9;
+  border-bottom-color: rgba(14,165,233,0.3);
+}
+@keyframes updateBounce {
+  from { transform: scale(1) rotate(-5deg); }
+  to   { transform: scale(1.2) rotate(5deg); }
+}
+@keyframes updateGlow {
+  0%,100% { box-shadow: 0 0 20px rgba(14,165,233,0.3); }
+  50%      { box-shadow: 0 0 50px rgba(14,165,233,0.7), 0 0 80px rgba(99,102,241,0.3); }
+}
+.msg-update-banner {
+  background: linear-gradient(135deg,#0ea5e9,#6366f1);
+  color: #fff;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.55rem;
+  padding: 8px 18px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+  animation: updateGlow 1.5s ease infinite;
+  display: inline-block;
+}
+
   position: fixed; top: 58px; left: 16px; z-index: 17000;
   width: 14px; height: 14px; border-radius: 50%;
   background: #fbbf24; border: 2px solid #000;
@@ -1299,6 +1581,611 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 }
 .admin-msg-inbox-item.unread { border-color: #fbbf24; background: rgba(251,191,36,0.08); }
 .admin-msg-inbox-item.read { opacity: 0.6; }
+
+/* ===== NINTENDO PRO STYLE ===== */
+
+/* Fond Nintendo texture */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 4px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 4px);
+  pointer-events:none;
+  z-index:0;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0f2e 0%, #1a0535 35%, #0d1f5c 65%, #1a0535 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* Nintendo panel shimmer */
+.screen {
+  position: relative;
+  background: rgba(5,8,30,0.88) !important;
+  border: 3px solid transparent !important;
+  background-clip: padding-box !important;
+  box-shadow:
+    0 0 0 3px rgba(228,5,33,0.7),
+    0 0 40px rgba(228,5,33,0.3),
+    0 20px 60px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+.screen::before {
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:22px;
+  background: linear-gradient(135deg, #E40521 0%, #fbbf24 50%, #E40521 100%);
+  background-size: 200% 200%;
+  animation: nintendoBorder 4s ease infinite;
+  z-index:-1;
+  pointer-events:none;
+}
+
+@keyframes nintendoBorder {
+  0%,100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* GAME TITLE Nintendo style */
+.game-title {
+  background: linear-gradient(180deg, #ffd700 0%, #ff6600 50%, #ff0040 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  text-shadow: none !important;
+  letter-spacing: 2px;
+  filter: drop-shadow(0 0 15px rgba(255,200,0,0.6));
+}
+
+/* Boutons Nintendo style */
+button {
+  border: 2px solid rgba(255,255,255,0.2) !important;
+  border-bottom: 4px solid rgba(0,0,0,0.4) !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.4s;
+}
+button:hover::after { left: 150%; }
+
+button.primary {
+  background: linear-gradient(135deg, #0055cc, #003399) !important;
+  box-shadow: 0 4px 15px rgba(0,85,204,0.5) !important;
+}
+button.gold {
+  background: linear-gradient(135deg, #ffd700, #ff8c00) !important;
+  box-shadow: 0 4px 15px rgba(255,200,0,0.5) !important;
+}
+button.danger {
+  background: linear-gradient(135deg, #E40521, #8b0000) !important;
+  box-shadow: 0 4px 15px rgba(228,5,33,0.5) !important;
+}
+
+/* STATS BAR Nintendo card */
+.stats-bar {
+  background: linear-gradient(135deg, rgba(228,5,33,0.12), rgba(0,30,80,0.5)) !important;
+  border: 2px solid rgba(228,5,33,0.4) !important;
+  box-shadow: 0 0 20px rgba(228,5,33,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.stat-value {
+  color: #ffe135 !important;
+  text-shadow: 0 0 10px rgba(255,225,53,0.6);
+}
+
+/* XP bar Nintendo green */
+.xp-fill {
+  background: linear-gradient(90deg, #00e676, #69ff47, #ffe135) !important;
+  box-shadow: 0 0 8px rgba(0,230,118,0.6);
+}
+
+/* TILE biome sur la carte */
+.tile.current {
+  box-shadow: 0 0 0 3px #00e676, 0 0 20px #00e676, 0 0 40px rgba(0,230,118,0.4) !important;
+}
+
+/* ===== AVATAR 3D SCREEN ===== */
+
+#avatarScreen {
+  background: linear-gradient(160deg, rgba(0,5,30,0.95) 0%, rgba(20,0,50,0.95) 100%) !important;
+}
+
+.avatar-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  margin: 20px 0;
+}
+@media (max-width: 768px) {
+  .avatar-editor-layout { grid-template-columns: 1fr; }
+}
+
+.avatar-3d-panel {
+  background: linear-gradient(135deg, rgba(0,10,40,0.9), rgba(15,0,40,0.9));
+  border: 2px solid rgba(228,5,33,0.5);
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(228,5,33,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.avatar-3d-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.55rem;
+  color: #ffd700;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+
+/* 3D Scene */
+.scene-3d {
+  width: 200px;
+  height: 200px;
+  perspective: 600px;
+  margin: 20px auto;
+}
+
+.cube-3d {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: rotateCube 8s linear infinite;
+  margin: 30px auto;
+}
+
+@keyframes rotateCube {
+  0%   { transform: rotateX(15deg) rotateY(0deg); }
+  100% { transform: rotateX(15deg) rotateY(360deg); }
+}
+
+.cube-face {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border: 2px solid rgba(255,215,0,0.6);
+  overflow: hidden;
+  image-rendering: pixelated;
+  backface-visibility: visible;
+}
+
+.face-front  { transform: translateZ(70px); }
+.face-back   { transform: rotateY(180deg) translateZ(70px); }
+.face-left   { transform: rotateY(-90deg) translateZ(70px); }
+.face-right  { transform: rotateY(90deg) translateZ(70px); }
+.face-top    { transform: rotateX(90deg) translateZ(70px); border-color: rgba(255,215,0,0.3); }
+.face-bottom { transform: rotateX(-90deg) translateZ(70px); border-color: rgba(255,215,0,0.3); }
+
+.face-front, .face-back   { box-shadow: 0 0 20px rgba(100,200,255,0.3) inset; }
+.face-left, .face-right   { box-shadow: 0 0 20px rgba(200,100,255,0.2) inset; }
+.face-top                  { background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,100,0,0.2)); }
+.face-bottom               { background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(30,0,60,0.8)); }
+
+/* Scene light */
+.scene-3d-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.scene-light {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 20px;
+  background: radial-gradient(ellipse, rgba(100,150,255,0.4), transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* Avatar canvas 2D in face */
+.cube-face canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* 3D controls */
+.avatar-3d-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+/* Palette grid étendue */
+.color-palette {
+  display: grid !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  gap: 6px !important;
+  max-width: 360px;
+  margin: 0 auto !important;
+}
+
+.color-option {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 6px !important;
+  border: 2px solid rgba(255,255,255,0.15) !important;
+  transition: all 0.2s !important;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.color-option:hover {
+  transform: scale(1.2) !important;
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 12px currentColor !important;
+  z-index: 10;
+  position: relative;
+}
+
+.color-option.selected {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 0 3px #ffd700, 0 0 15px rgba(255,215,0,0.7) !important;
+  transform: scale(1.15);
+}
+
+/* PIXEL GRID Nintendo style */
+.pixel-grid {
+  border: 3px solid #E40521 !important;
+  box-shadow: 0 0 20px rgba(228,5,33,0.4), 0 0 40px rgba(228,5,33,0.15) !important;
+  background: rgba(0,0,0,0.8) !important;
+}
+
+/* Avatar editor panel */
+.avatar-draw-panel {
+  background: linear-gradient(135deg, rgba(0,10,40,0.9), rgba(15,0,40,0.9));
+  border: 2px solid rgba(228,5,33,0.4);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(228,5,33,0.15);
+}
+
+/* Nintendo glowing title for avatar */
+.avatar-section-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.55rem;
+  color: #ffd700;
+  margin-bottom: 15px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255,215,0,0.5);
+  letter-spacing: 2px;
+}
+
+/* LEADERBOARD item Nintendo */
+.leaderboard-item {
+  border: 2px solid rgba(228,5,33,0.2) !important;
+  background: rgba(5,10,40,0.7) !important;
+  transition: all 0.3s;
+}
+.leaderboard-item:hover {
+  border-color: rgba(228,5,33,0.6) !important;
+  background: rgba(228,5,33,0.08) !important;
+  transform: translateX(4px);
+}
+.leaderboard-item.podium-1 {
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.1)) !important;
+  border-color: gold !important;
+}
+
+/* SHOP item Nintendo */
+.shop-item {
+  border: 2px solid rgba(228,5,33,0.4) !important;
+  background: rgba(5,10,40,0.8) !important;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.shop-item::before {
+  content:'';
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background: conic-gradient(transparent 0deg, rgba(228,5,33,0.05) 90deg, transparent 180deg);
+  animation: shopSpin 6s linear infinite;
+}
+@keyframes shopSpin { 100% { transform: rotate(360deg); } }
+
+.shop-item:hover {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 20px rgba(255,215,0,0.3) !important;
+  transform: translateY(-5px) !important;
+}
+
+/* Amélioration brevet */
+.brevet-choice-btn {
+  border: 2px solid rgba(228,5,33,0.4) !important;
+}
+
+/* Auto-save indicator */
+#autosaveIndicator {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  background: rgba(16,185,129,0.9);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.5rem;
+  z-index: 9999;
+  opacity: 0;
+  -webkit-transition: opacity 0.4s;
+  -moz-transition: opacity 0.4s;
+  -o-transition: opacity 0.4s;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+#autosaveIndicator.show { opacity: 1; }
+
+/* ===== ANIMATION BOUTON PRESSION ===== */
+button:active,
+button.btn-press {
+  transform: translateY(3px) scale(0.97) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4) !important;
+  border-bottom-width: 1px !important;
+  filter: brightness(0.88);
+  transition: transform 0.07s, box-shadow 0.07s, filter 0.07s !important;
+}
+button {
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+  transform: translateY(0);
+}
+
+/* ===== QUIZ SCREEN AMÉLIORÉ ===== */
+.subject-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.45rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+.subject-math     { background: rgba(99,102,241,0.25); border: 1px solid #6366f1; color: #a5b4fc; }
+.subject-sciences { background: rgba(16,185,129,0.25); border: 1px solid #10b981; color: #6ee7b7; }
+.subject-histoire { background: rgba(245,158,11,0.25); border: 1px solid #f59e0b; color: #fcd34d; }
+.subject-geo      { background: rgba(14,165,233,0.25); border: 1px solid #0ea5e9; color: #7dd3fc; }
+.subject-culture  { background: rgba(236,72,153,0.25); border: 1px solid #ec4899; color: #f9a8d4; }
+.subject-sports   { background: rgba(239,68,68,0.25);  border: 1px solid #ef4444; color: #fca5a5; }
+.subject-langues  { background: rgba(139,92,246,0.25); border: 1px solid #8b5cf6; color: #c4b5fd; }
+
+.choice-btn.correct-anim {
+  background: linear-gradient(135deg, rgba(16,185,129,0.5), rgba(5,150,105,0.5)) !important;
+  border-color: #10b981 !important;
+  animation: choiceCorrect 0.4s ease;
+}
+.choice-btn.wrong-anim {
+  background: linear-gradient(135deg, rgba(239,68,68,0.5), rgba(185,28,28,0.5)) !important;
+  border-color: #ef4444 !important;
+  animation: choiceWrong 0.4s ease;
+}
+@keyframes choiceCorrect {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes choiceWrong {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-8px); }
+  40%     { transform: translateX(8px); }
+  60%     { transform: translateX(-5px); }
+  80%     { transform: translateX(5px); }
+}
+
+/* Feedback quiz amélioré */
+#quizFeedback {
+  transition: all 0.2s;
+}
+.feedback-correct {
+  background: rgba(16,185,129,0.12);
+  border: 2px solid rgba(16,185,129,0.4);
+  border-radius: 14px;
+  padding: 14px 20px;
+  animation: feedbackPop 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.feedback-wrong {
+  background: rgba(239,68,68,0.12);
+  border: 2px solid rgba(239,68,68,0.4);
+  border-radius: 14px;
+  padding: 14px 20px;
+  animation: feedbackPop 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes feedbackPop {
+  from { opacity: 0; transform: scale(0.94) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+/* ===== LOGIN SCREEN REDESIGNÉ ===== */
+#loginScreen {
+  text-align: center;
+  max-width: 480px !important;
+}
+.login-logo {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  animation: logoPulse 2.5s ease-in-out infinite;
+  display: block;
+}
+@keyframes logoPulse {
+  0%,100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 12px rgba(251,191,36,0.6)); }
+  50%     { transform: scale(1.08) rotate(2deg); filter: drop-shadow(0 0 25px rgba(251,191,36,0.9)); }
+}
+.login-title-text {
+  font-size: 1.1rem;
+  background: linear-gradient(180deg, #ffd700, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+  letter-spacing: 2px;
+}
+.login-subtitle {
+  font-size: 0.45rem;
+  color: #9ca3af;
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+}
+.login-features {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.login-feature-chip {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.38rem;
+  color: #9ca3af;
+}
+
+/* ===== GAME OVER REDESIGNÉ ===== */
+#gameOverScreen {
+  text-align: center;
+}
+.gameover-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.gameover-stat-card {
+  background: rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.gameover-stat-icon { font-size: 1.4rem; }
+.gameover-stat-val  { font-size: 0.9rem; color: #fbbf24; }
+.gameover-stat-lbl  { font-size: 0.38rem; color: #9ca3af; }
+
+/* ===== BOUTON BACK GLOBAL ===== */
+#globalBackBtn {
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 16000;
+  background: rgba(0,0,0,0.7);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(8px);
+}
+#globalBackBtn:hover {
+  background: rgba(239,68,68,0.3);
+  border-color: #ef4444;
+}
+#globalBackBtn.visible { display: flex; }
+
+/* ===== TOAST NOTIFICATION ===== */
+#toastContainer {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99995;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: rgba(15,15,35,0.95);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 10px 20px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.5rem;
+  color: #e2e8f0;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  animation: toastIn 0.3s cubic-bezier(0.22,1,0.36,1);
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.success { border-color: #10b981; color: #6ee7b7; }
+.toast.error   { border-color: #ef4444; color: #fca5a5; }
+.toast.info    { border-color: #6366f1; color: #a5b4fc; }
+.toast.gold    { border-color: #fbbf24; color: #fcd34d; }
+.toast-out     { animation: toastOut 0.25s ease-in forwards; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.92); }
+}
+
+/* ===== LEVEL UP OVERLAY ===== */
+#levelUpOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99993;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+}
+#levelUpOverlay.show {
+  animation: levelUpAnim 2.2s ease forwards;
+  pointer-events: none;
+}
+.levelup-card {
+  background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(99,102,241,0.15));
+  border: 3px solid #fbbf24;
+  border-radius: 24px;
+  padding: 30px 40px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(251,191,36,0.5), 0 0 120px rgba(251,191,36,0.2);
+  backdrop-filter: blur(12px);
+}
+.levelup-emoji { font-size: 3rem; animation: levelUpBounce 0.4s ease infinite alternate; }
+.levelup-text  { font-size: 1rem; color: #fbbf24; margin: 10px 0 4px; letter-spacing: 2px; }
+.levelup-num   { font-size: 1.8rem; color: #fff; text-shadow: 0 0 20px #fbbf24; }
+@keyframes levelUpAnim {
+  0%   { opacity: 0; transform: scale(0.7); }
+  15%  { opacity: 1; transform: scale(1.05); }
+  80%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.02); }
+}
+@keyframes levelUpBounce {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-8px) scale(1.1); }
+}
+
 </style>
 </head>
 <body>
@@ -1306,13 +2193,35 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 <!-- AUTO-SAVE INDICATOR -->
 <div id="autosaveIndicator">⚙️...</div>
 
+<!-- FOND ÉTOILÉ -->
+<div id="starfield"></div>
+
+<!-- FLASH RÉPONSE -->
+<div id="answerFlash"></div>
+
+<!-- BOUTON BACK GLOBAL -->
+<button id="globalBackBtn" onclick="globalBack()" title="Retour">←</button>
+
+<!-- TOASTS -->
+<div id="toastContainer"></div>
+
+<!-- LEVEL UP OVERLAY -->
+<div id="levelUpOverlay">
+  <div class="levelup-card">
+    <div class="levelup-emoji">⭐</div>
+    <div class="levelup-text">NIVEAU SUPÉRIEUR !</div>
+    <div class="levelup-num" id="levelUpNum">42</div>
+  </div>
+</div>
+
 <!-- POINT DE NOTIFICATION MESSAGE ADMIN -->
 <div id="adminMsgDot" title="Messages non lus" onclick="openAdminMsgInbox()">📨</div>
 
 <!-- ÉCRAN PLEIN ÉCRAN MESSAGE ADMIN (comme le ban) -->
 <div id="adminMsgScreen">
-  <div class="msg-crown">📨</div>
-  <h1>MESSAGE ADMIN</h1>
+  <div class="msg-crown" id="adminMsgCrown">📨</div>
+  <h1 id="adminMsgTitle">MESSAGE ADMIN</h1>
+  <div class="msg-update-banner" id="adminMsgUpdateBanner" style="display:none;">✨ NOUVELLE MISE À JOUR ✨</div>
   <div class="msg-subtitle" id="adminMsgScreenFrom"></div>
   <div class="msg-card">
     <div class="msg-subject" id="adminMsgScreenSubject"></div>
@@ -1357,14 +2266,21 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen active">
-  <h1 class="game-title">🎮 SCHOOLMES 🎮</h1>
-  <p style="text-align:center; font-size:0.8rem; margin-bottom:30px; color:#9ca3af;">
-    L'aventure éducative - 10 000 niveaux !
-  </p>
-  
+  <span class="login-logo">🏫</span>
+  <div class="login-title-text">SCHOOLMES</div>
+  <div class="login-subtitle">L'AVENTURE ÉDUCATIVE • 10 000 NIVEAUX</div>
+
+  <div class="login-features">
+    <div class="login-feature-chip">🗺️ Cartes</div>
+    <div class="login-feature-chip">⚔️ Multijoueur</div>
+    <div class="login-feature-chip">🏆 Classement</div>
+    <div class="login-feature-chip">📚 Brevet</div>
+    <div class="login-feature-chip">🌳 Talents</div>
+  </div>
+
   <div class="input-group">
     <label>📝 Pseudo</label>
-    <input type="text" id="loginUsername" placeholder="Ton pseudo" onkeypress="if(event.key==='Enter') login()">
+    <input type="text" id="loginUsername" placeholder="Ton pseudo" onkeypress="if(event.key==='Enter') document.getElementById('loginCode').focus()">
   </div>
   
   <div class="input-group">
@@ -1372,45 +2288,52 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
     <input type="password" id="loginCode" placeholder="Ton code secret" onkeypress="if(event.key==='Enter') login()">
   </div>
   
-  <div style="text-align:center; margin-top:30px;">
-    <button id="loginBtn" class="primary" onclick="login()">🚀 Connexion / Inscription</button>
+  <div style="margin-top:24px;">
+    <button id="loginBtn" class="primary" style="width:100%;padding:16px;" onclick="login()">🚀 JOUER</button>
   </div>
   
-  <div id="loginFirebaseStatus" style="text-align:center; margin-top:20px; font-size:0.55rem; color:#9ca3af;">
+  <div id="loginFirebaseStatus" style="margin-top:20px; font-size:0.5rem; color:#9ca3af;">
     ⏳ Vérification Firebase...
   </div>
 </div>
 
 <!-- HOME -->
 <div id="homeScreen" class="screen">
-  <h1 class="game-title">🏠 ACCUEIL</h1>
-  
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-label">👤 Joueur</div>
-      <div class="home-player-header">
-        <canvas id="homeAvatarCanvas" class="mini-avatar-canvas" width="40" height="40" style="display:none;"></canvas>
-        <div class="stat-value" id="homeUsername">-</div>
+  <h1 class="game-title" style="font-size:1.4rem;margin-bottom:16px;">🏫 SCHOOLMES</h1>
+
+  <!-- CARTE PROFIL -->
+  <div id="homeProfileCard">
+    <div class="home-profile-top">
+      <div class="home-avatar-wrap">
+        <canvas id="homeAvatarCanvas" class="mini-avatar-canvas" width="50" height="50"></canvas>
+        <span id="homeAvatarEmoji" style="font-size:1.6rem;display:none;">🎮</span>
       </div>
-      <div id="homePlayerBadges"></div>
+      <div class="home-info-block">
+        <div class="home-username" id="homeUsername">-</div>
+        <div class="home-league-line" id="homeLeagueLine">—</div>
+        <div id="homePlayerBadges" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+      </div>
     </div>
-    <div class="stat">
-      <div class="stat-label">⭐ Niveau</div>
-      <div class="stat-value" id="homeLevel">-</div>
+    <div class="home-stats-row">
+      <div class="home-stat-chip">⭐ Niveau<span id="homeLevel">-</span></div>
+      <div class="home-stat-chip">💰 Pièces<span id="homeCoins">-</span></div>
+      <div class="home-stat-chip">✨ XP<span id="homeXP">-</span></div>
+      <div class="home-stat-chip" id="homeStreakChip" style="display:none;">🔥 Streak<span id="homeStreakVal">-</span></div>
     </div>
-    <div class="stat">
-      <div class="stat-label">💰 Pièces</div>
-      <div class="stat-value" id="homeCoins">-</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">✨ XP</div>
-      <div class="stat-value" id="homeXP">-</div>
+    <div class="home-xp-bar-wrap">
+      <div class="home-xp-label">
+        <span>Progression niveau</span>
+        <span id="homeXpLabel">0 / 100 XP</span>
+      </div>
+      <div class="home-xp-track">
+        <div class="home-xp-fill" id="homeXpFill" style="width:0%"></div>
+      </div>
     </div>
   </div>
-  
+
   <div id="adminPanelHome"></div>
-  
-  <!-- ENERGY DISPLAY -->
+
+  <!-- ENERGY -->
   <div id="energyDisplay">
     ⚡ ÉNERGIE : <span id="energyCount">10</span>/10
     <div id="energyBar" style="flex:1;height:10px;background:rgba(0,0,0,0.5);border-radius:5px;overflow:hidden;border:1px solid #ef4444;">
@@ -1432,25 +2355,48 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
     <div style="font-size:0.7rem;color:#10b981;margin-bottom:8px;">📋 QUÊTES DU JOUR</div>
     <div id="questsPreview"></div>
   </div>
-  
-  <!-- Indicateur Firebase -->
-  <div id="firebaseStatus" style="text-align:center; margin:15px 0; padding:10px; background:rgba(16,185,129,0.2); border-radius:10px; font-size:0.6rem; display:none;">
-    <span style="color:#10b981;">🔥 Connecté à Firebase</span>
-  </div>
-  
-  <div style="text-align:center; margin:30px 0;">
-    <button class="primary" onclick="tryStartGame()">🎮 Jouer</button>
-    <button class="gold" onclick="showScreen('shopScreen'); renderShop();">🛒 Boutique</button>
-    <button onclick="showScreen('avatarScreen'); initAvatarEditor();">🎨 Avatar</button>
-    <button style="background:linear-gradient(135deg,#6366f1,#4f46e5);" onclick="showScreen('leaderboardScreen'); renderLeaderboard();">🏆 Classement</button>
-    <button style="background:linear-gradient(135deg,#ec4899,#be185d);border:2px solid #fbbf24;" onclick="showScreen('multiplayerScreen'); initMultiplayer();">⚔️ Multijoueur</button>
-    <button style="background:linear-gradient(135deg,#10b981,#059669);" onclick="manualSave()">💾 Sauvegarder</button>
-    <button style="background:linear-gradient(135deg,#f59e0b,#d97706);" onclick="openTalentTree()">🌳 Talents</button>
-    <button style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);" onclick="openQuestsModal()">📋 Quêtes</button>
-    <button style="background:linear-gradient(135deg,#0ea5e9,#0284c7);" onclick="showScreen('onlinePlayersScreen'); renderOnlinePlayers();">👥 Joueurs connectés</button>
-    <button style="background:linear-gradient(135deg,#6b7280,#4b5563);" onclick="showScreen('settingsScreen'); renderSettings();">⚙️ Réglages</button>
-    <button style="background:linear-gradient(135deg,#7c3aed,#ec4899);border:2px solid #fbbf24;box-shadow:0 0 15px rgba(236,72,153,0.4);" onclick="showScreen('brevetScreen');">📚 Révisions Brevet</button>
-    <button class="danger" onclick="logout()">🚪 Déconnexion</button>
+
+  <!-- Firebase status -->
+  <div id="firebaseStatus" style="text-align:center;margin:10px 0;padding:8px;background:rgba(16,185,129,0.1);border-radius:10px;font-size:0.5rem;display:none;"></div>
+
+  <!-- GRILLE DE MENU -->
+  <div id="homeMenuGrid">
+    <div class="home-menu-card card-play" onclick="tryStartGame()">
+      <div class="card-icon">🎮</div>JOUER
+    </div>
+    <div class="home-menu-card card-multi" onclick="showScreen('multiplayerScreen'); initMultiplayer();">
+      <div class="card-icon">⚔️</div>MULTI&shy;JOUEUR
+    </div>
+    <div class="home-menu-card card-brevet" onclick="showScreen('brevetScreen');">
+      <div class="card-icon">📚</div>RÉVISIONS BREVET
+    </div>
+    <div class="home-menu-card card-lb" onclick="showScreen('leaderboardScreen'); renderLeaderboard();">
+      <div class="card-icon">🏆</div>CLASSEMENT
+    </div>
+    <div class="home-menu-card card-quest" onclick="openQuestsModal()">
+      <div class="card-icon">📋</div>QUÊTES
+    </div>
+    <div class="home-menu-card card-talent" onclick="openTalentTree()">
+      <div class="card-icon">🌳</div>TALENTS
+    </div>
+    <div class="home-menu-card card-shop" onclick="showScreen('shopScreen'); renderShop();">
+      <div class="card-icon">🛒</div>BOUTIQUE
+    </div>
+    <div class="home-menu-card card-online" onclick="showScreen('onlinePlayersScreen'); renderOnlinePlayers();">
+      <div class="card-icon">👥</div>EN LIGNE
+    </div>
+    <div class="home-menu-card card-avatar" onclick="showScreen('avatarScreen'); initAvatarEditor();">
+      <div class="card-icon">🎨</div>AVATAR
+    </div>
+    <div class="home-menu-card card-settings" onclick="showScreen('settingsScreen'); renderSettings();">
+      <div class="card-icon">⚙️</div>RÉGLAGES
+    </div>
+    <div class="home-menu-card card-save" onclick="manualSave()">
+      <div class="card-icon">💾</div>SAUVEGARDER
+    </div>
+    <div class="home-menu-card card-logout" onclick="logout()">
+      <div class="card-icon">🚪</div>DÉCONNEXION
+    </div>
   </div>
 </div>
 
@@ -1459,10 +2405,25 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
   <button class="danger" onclick="showScreen('homeScreen'); updateHomeScreen();">⬅️ Retour</button>
   <h2 class="game-title">🏆 CLASSEMENT MONDIAL</h2>
   
-  <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+  <div style="display:flex; justify-content:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
     <button onclick="renderLeaderboard('maxLevel')" id="lbBtnLevel" class="primary">🗺️ Niveaux atteints</button>
     <button onclick="renderLeaderboard('level')" id="lbBtnXP">⭐ Niveau joueur</button>
     <button onclick="renderLeaderboard('coins')" id="lbBtnCoins" class="gold">💰 Pièces</button>
+  </div>
+  
+  <!-- Filtre niveau scolaire -->
+  <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+    <span style="font-size:0.45rem;color:#9ca3af;">🎓 Filtre :</span>
+    <select id="lbSchoolFilter" onchange="renderLeaderboard()" style="background:#1a1a2e;color:#fbbf24;border:2px solid #6366f1;border-radius:8px;padding:6px 10px;font-family:'Press Start 2P';font-size:0.45rem;cursor:pointer;">
+      <option value="all">📖 Tous niveaux</option>
+      <option value="6eme">6ème</option>
+      <option value="5eme">5ème</option>
+      <option value="4eme">4ème</option>
+      <option value="3eme">3ème</option>
+      <option value="2nde">2nde</option>
+      <option value="1ere">1ère</option>
+      <option value="terminale">Terminale</option>
+    </select>
   </div>
   
   <div id="lbLoading" style="text-align:center; padding:30px; color:#9ca3af; font-size:0.7rem;">⏳ Chargement...</div>
@@ -1559,31 +2520,39 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 
 <!-- GAME OVER -->
 <div id="gameOverScreen" class="screen">
-  <h1 class="game-title" style="color:#ef4444;">💀 GAME OVER 💀</h1>
-  
-  <div style="text-align:center; font-size:1.2rem; margin:30px 0; color:#9ca3af;">
-    <p>Tu as fait 5 erreurs !</p>
-    <p style="margin-top:20px; font-size:0.8rem;">Statistiques de cette partie :</p>
+  <h1 class="game-title" style="color:#ef4444;font-size:1.5rem;">💀 GAME OVER 💀</h1>
+  <p style="text-align:center;font-size:0.55rem;color:#9ca3af;margin-bottom:20px;">Tu as fait 5 erreurs — courage pour la prochaine !</p>
+
+  <div class="gameover-stats-grid">
+    <div class="gameover-stat-card">
+      <div class="gameover-stat-icon">🗺️</div>
+      <div class="gameover-stat-val" id="goLevel">-</div>
+      <div class="gameover-stat-lbl">Niveau atteint</div>
+    </div>
+    <div class="gameover-stat-card">
+      <div class="gameover-stat-icon">✅</div>
+      <div class="gameover-stat-val" id="goCorrect">-</div>
+      <div class="gameover-stat-lbl">Questions réussies</div>
+    </div>
+    <div class="gameover-stat-card">
+      <div class="gameover-stat-icon">💰</div>
+      <div class="gameover-stat-val" id="goCoins">-</div>
+      <div class="gameover-stat-lbl">Pièces gagnées</div>
+    </div>
   </div>
-  
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-label">NIVEAU ATTEINT</div>
-      <div class="stat-value" id="goLevel">-</div>
+
+  <!-- Barre de progression session -->
+  <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;margin:16px 0;">
+    <div style="font-size:0.45rem;color:#9ca3af;margin-bottom:10px;">📊 PRÉCISION DE LA SESSION</div>
+    <div style="height:12px;background:rgba(0,0,0,0.5);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
+      <div id="goAccuracyBar" style="height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:10px;transition:width 0.8s;width:0%;"></div>
     </div>
-    <div class="stat">
-      <div class="stat-label">QUESTIONS RÉUSSIES</div>
-      <div class="stat-value" id="goCorrect">-</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">PIÈCES GAGNÉES</div>
-      <div class="stat-value" id="goCoins">-</div>
-    </div>
+    <div id="goAccuracyLabel" style="font-size:0.5rem;color:#fbbf24;text-align:center;margin-top:6px;">-</div>
   </div>
-  
-  <div style="text-align:center; margin-top:30px;">
-    <button class="primary" onclick="restartGame()">🔄 Rejouer</button>
-    <button class="danger" onclick="showScreen('homeScreen'); updateHomeScreen();">🏠 Menu</button>
+
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
+    <button class="primary" style="font-size:0.6rem;padding:14px 24px;" onclick="restartGame()">🔄 Rejouer</button>
+    <button class="danger" style="font-size:0.6rem;padding:14px 24px;" onclick="showScreen('homeScreen'); updateHomeScreen();">🏠 Menu</button>
   </div>
 </div>
 
@@ -1647,7 +2616,7 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 
 <!-- ===== DUEL SCREEN ===== -->
 <div id="duelScreen" class="screen">
-  <!-- HUD with both players -->
+  <!-- HUD multi-joueurs -->
   <div class="duel-hud">
     <div class="duel-side" id="duelMySide">
       <div class="duel-side-name" id="duelMyName">-</div>
@@ -1665,11 +2634,13 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
       <div style="font-size:0.5rem;color:#6366f1;" id="duelRoundInfo">Q 1/10</div>
     </div>
     <div class="duel-side" id="duelOppSide" style="text-align:right;">
-      <div class="duel-side-name" id="duelOppName">-</div>
+      <div class="duel-side-name" id="duelOppName" style="font-size:0.55rem;">-</div>
       <div class="duel-side-score" id="duelOppScore">0</div>
       <div style="font-size:0.45rem;color:#9ca3af;" id="duelOppCorrect">0 corrects</div>
     </div>
   </div>
+  <!-- Mini-classement temps réel (visible pendant la partie) -->
+  <div id="duelLiveRanking" style="display:none;background:rgba(0,0,0,0.4);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:0.5rem;color:#9ca3af;text-align:center;"></div>
 
   <!-- Question -->
   <div class="question-container">
@@ -1925,7 +2896,23 @@ function getQuestionForLevel(level, isBoss) {
     // Fallback si la banque n'est pas chargée
     return { id: 'fb_1', type: 'text', question: '2 + 2 = ?', answer: '4' };
   }
-  
+
+  // ─── Filtre niveau scolaire ───────────────────────────────────
+  // Mapping niveau scolaire → sujets prioritaires + sujets bannis
+  const schoolLevel = getSettings().schoolLevel || 'all';
+  const SCHOOL_PROFILES = {
+    '6eme':     { priority: ['math','sciences','geo','histoire'],    bonus: ['culture','sports'] },
+    '5eme':     { priority: ['math','sciences','geo','histoire'],    bonus: ['culture','langues'] },
+    '4eme':     { priority: ['math','sciences','histoire','geo'],    bonus: ['langues','culture'] },
+    '3eme':     { priority: ['math','sciences','histoire','langues'],bonus: ['geo','culture'] },
+    '2nde':     { priority: ['math','sciences','histoire','langues'],bonus: ['culture','geo'] },
+    '1ere':     { priority: ['math','sciences','histoire','langues','culture'], bonus: ['geo','sports'] },
+    'terminale':{ priority: ['math','sciences','histoire','langues','culture','geo'], bonus: ['sports'] },
+    'all':      { priority: null, bonus: null }
+  };
+  const profile = SCHOOL_PROFILES[schoolLevel] || SCHOOL_PROFILES['all'];
+  // ─────────────────────────────────────────────────────────────
+
   const difficultyLevel = Math.min(10, Math.floor(level / 1000) + 1);
   
   const easySubjects = ['culture', 'sports', 'langues'];
@@ -1942,6 +2929,11 @@ function getQuestionForLevel(level, isBoss) {
   } else {
     subjectPool = [...hardSubjects, 'math', 'sciences', 'geo', 'histoire'];
   }
+
+  // Pondération selon le niveau scolaire : on double les matières prioritaires
+  if (profile.priority) {
+    subjectPool = subjectPool.concat(profile.priority).concat(profile.priority);
+  }
   
   let chosenSubject;
   do {
@@ -1954,7 +2946,10 @@ function getQuestionForLevel(level, isBoss) {
   
   // Boss : questions difficiles variées
   if (isBoss) {
-    pool = QUESTION_BANK.filter(q => ['sciences', 'histoire', 'geo', 'math'].includes(q.subject));
+    const bossSubjects = profile.priority
+      ? profile.priority.filter(s => ['sciences','histoire','geo','math'].includes(s))
+      : ['sciences', 'histoire', 'geo', 'math'];
+    pool = QUESTION_BANK.filter(q => bossSubjects.includes(q.subject));
   }
   
   if (pool.length === 0) pool = QUESTION_BANK;
@@ -2072,7 +3067,8 @@ async function login() {
           questionsAnswered: player.stats?.questionsAnswered || 0,
           bossesDefeated: player.stats?.bossesDefeated || 0,
           playTime: player.playTime || 0,
-          avatarData: player.avatarData || null
+          avatarData: player.avatarData || null,
+          schoolLevel: getSettings().schoolLevel || 'all'
         });
       } catch(e) { console.warn('Admin Firebase sync:', e.message); }
     }
@@ -2523,10 +3519,19 @@ function loadPlayerLocal() {
 
 // SCREENS
 function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const el = document.getElementById(screenId);
-  if (el) el.classList.add('active');
-  // Changer la musique immédiatement (on est dans un event handler = AudioContext autorisé)
+  const current = document.querySelector('.screen.active');
+  const next = document.getElementById(screenId);
+  if (!next) return;
+  if (current && current !== next) {
+    current.classList.remove('active');
+  }
+  next.classList.add('active');
+  next.classList.remove('screen-enter');
+  // Force reflow pour re-déclencher l'animation
+  void next.offsetWidth;
+  next.classList.add('screen-enter');
+  setTimeout(() => next.classList.remove('screen-enter'), 350);
+  // Changer la musique
   try { updateMusicForScreen(screenId); } catch(e) { console.warn('Music error:', e); }
 }
 
@@ -2946,10 +3951,17 @@ function submitAnswer() {
     const timeTxt = timeBonus > 0 ? ` ⏱️+${timeBonus*10}XP` : '';
     const boostMsg = _wasXpBoosted ? ' ⚡ BOOST !' : '';
     const coinMsg = _wasCoinBoosted ? ' 💸 BONUS !' : '';
-    document.getElementById('quizFeedback').innerHTML = `
-      <div style="color:#10b981; font-size:1.2rem;">✅ CORRECT !${comboTxt}</div>
-      <div style="color:#fbbf24;">+${xpGain} XP${boostMsg}${timeTxt} | +${coinGain} 💰${coinMsg}</div>
+    const feedbackEl = document.getElementById('quizFeedback');
+    feedbackEl.className = 'feedback-correct';
+    feedbackEl.innerHTML = `
+      <div style="color:#10b981; font-size:1rem;">✅ CORRECT !${comboTxt}</div>
+      <div style="color:#fbbf24;font-size:0.65rem;margin-top:6px;">+${xpGain} XP${boostMsg}${timeTxt} &nbsp;|&nbsp; +${coinGain} 💰${coinMsg}</div>
     `;
+    // Flash vert + animer le bon choix QCM
+    if (typeof triggerAnswerFlash === 'function') triggerAnswerFlash(true);
+    document.querySelectorAll('.choice-btn.selected').forEach(b => {
+      b.classList.add('correct-anim');
+    });
     
     setTimeout(() => {
       showScreen('gameScreen');
@@ -2997,9 +4009,13 @@ function submitAnswer() {
     if (!blocked) {
       updateHeartsDisplay();
       screenShake();
-      document.getElementById('quizFeedback').innerHTML = `
+      if (typeof triggerAnswerFlash === 'function') triggerAnswerFlash(false);
+      document.querySelectorAll('.choice-btn.selected').forEach(b => b.classList.add('wrong-anim'));
+      const feedbackEl = document.getElementById('quizFeedback');
+      feedbackEl.className = 'feedback-wrong';
+      feedbackEl.innerHTML = `
         <div style="color:#ef4444;">❌ Incorrect !</div>
-        <div style="color:#9ca3af; margin-top:10px;">Réponse: ${correctAnswer}</div>
+        <div style="color:#9ca3af; margin-top:8px;font-size:0.55rem;">Bonne réponse : <span style="color:#fbbf24;">${correctAnswer}</span></div>
       `;
     }
     
@@ -3031,7 +4047,23 @@ function showGameOver() {
   
   document.getElementById('goLevel').textContent = currentLevel;
   document.getElementById('goCorrect').textContent = sessionCorrect;
-  document.getElementById('goCoins').textContent = player.coins - sessionCoinsStart;
+  document.getElementById('goCoins').textContent = (player.coins - sessionCoinsStart).toLocaleString();
+
+  // Barre de précision
+  const total = sessionCorrect + sessionErrors;
+  const accuracy = total > 0 ? Math.round((sessionCorrect / total) * 100) : 0;
+  setTimeout(() => {
+    const bar = document.getElementById('goAccuracyBar');
+    const lbl = document.getElementById('goAccuracyLabel');
+    if (bar) bar.style.width = accuracy + '%';
+    if (lbl) lbl.textContent = `${accuracy}% de précision (${sessionCorrect}/${total})`;
+    // Couleur selon précision
+    if (bar) {
+      if (accuracy >= 80) bar.style.background = 'linear-gradient(90deg,#10b981,#34d399)';
+      else if (accuracy >= 50) bar.style.background = 'linear-gradient(90deg,#f59e0b,#fcd34d)';
+      else bar.style.background = 'linear-gradient(90deg,#ef4444,#f87171)';
+    }
+  }, 300);
   
   showScreen('gameOverScreen');
 }
@@ -3348,7 +4380,8 @@ const SETTINGS_DEFAULTS = {
   notifications: true,
   comboDisplay: true,
   language: 'fr',
-  hardMode: false
+  hardMode: false,
+  schoolLevel: 'all'
 };
 
 function getSettings() {
@@ -3423,7 +4456,19 @@ function renderSettings() {
   
   el.innerHTML = `
     <div style="max-width:600px;margin:0 auto;">
-      <div style="font-size:0.7rem;color:#fbbf24;margin:15px 0 8px;">🔊 AUDIO</div>
+      <div style="font-size:0.7rem;color:#fbbf24;margin:20px 0 8px;">🎓 NIVEAU SCOLAIRE</div>
+      ${select('schoolLevel', '📚 Mon niveau', 'Les questions s\'adaptent à ton niveau scolaire', [
+        {v:'all',     l:'📖 Tous niveaux'},
+        {v:'6eme',    l:'6ème'},
+        {v:'5eme',    l:'5ème'},
+        {v:'4eme',    l:'4ème'},
+        {v:'3eme',    l:'3ème'},
+        {v:'2nde',    l:'2nde'},
+        {v:'1ere',    l:'1ère'},
+        {v:'terminale', l:'Terminale'}
+      ])}
+      
+      <div style="font-size:0.7rem;color:#fbbf24;margin:20px 0 8px;">🔊 AUDIO</div>
       ${toggle('soundEnabled', '🔊 Sons', 'Active/désactive les effets sonores')}
       ${toggle('musicEnabled', '🎵 Musique', 'Active/désactive la musique de fond')}
       
@@ -3457,7 +4502,7 @@ function renderSettings() {
           <div class="settings-label">📋 Informations</div>
           <div class="settings-desc">Version du jeu et infos</div>
         </div>
-        <div style="font-size:0.5rem;color:#9ca3af;">v1.3.8</div>
+        <div style="font-size:0.5rem;color:#9ca3af;">v1.4</div>
       </div>
       ${player?.isAdmin ? `
       <div style="font-size:0.7rem;color:#fbbf24;margin:20px 0 8px;">👑 ADMIN</div>
@@ -3858,7 +4903,8 @@ async function updateLeaderboardEntry() {
       avatarData: player.avatarData || null,
       playTime: player.playTime || 0,
       badges: player.badges || [],
-      isAdmin: player.isAdmin === true
+      isAdmin: player.isAdmin === true,
+      schoolLevel: getSettings().schoolLevel || 'all'
     });
   } catch(e) { /* silencieux */ }
 }
@@ -3874,6 +4920,11 @@ async function renderLeaderboard(sortBy) {
   if (sortBy === 'maxLevel') document.getElementById('lbBtnLevel').className = 'primary';
   if (sortBy === 'level')    document.getElementById('lbBtnXP').className = 'primary';
   if (sortBy === 'coins')    document.getElementById('lbBtnCoins').className = 'gold';
+
+  // Lire le filtre niveau scolaire
+  const lbSchoolFilter = document.getElementById('lbSchoolFilter');
+  const filterLevel = lbSchoolFilter ? lbSchoolFilter.value : 'all';
+  const SCHOOL_LABELS = { all:'Tous niveaux', '6eme':'6ème', '5eme':'5ème', '4eme':'4ème', '3eme':'3ème', '2nde':'2nde', '1ere':'1ère', 'terminale':'Terminale' };
 
   const listEl = document.getElementById('leaderboardList');
   const loadEl = document.getElementById('lbLoading');
@@ -3902,12 +4953,17 @@ async function renderLeaderboard(sortBy) {
 
     // Séparer admins et joueurs directement depuis /leaderboard
     const adminPlayers = [];
-    const normalPlayers = [];
+    let normalPlayers = [];
     
     Object.values(lbData).filter(p => p && p.username).forEach(p => {
       if (p.isAdmin === true) adminPlayers.push(p);
       else normalPlayers.push(p);
     });
+
+    // Appliquer le filtre niveau scolaire
+    if (filterLevel !== 'all') {
+      normalPlayers = normalPlayers.filter(p => (p.schoolLevel || 'all') === filterLevel);
+    }
     
     // Les bannis en bas de liste
     normalPlayers.sort((a, b) => {
@@ -3933,12 +4989,15 @@ async function renderLeaderboard(sortBy) {
       
       const badgesHtml = (p.badges || []).map(b => `<span style="font-size:0.45rem;background:rgba(251,191,36,0.2);border:1px solid #fbbf24;border-radius:8px;padding:2px 6px;margin:2px;">${b}</span>`).join('');
       const avatarCanvasId = 'lbAvatar_' + Math.random().toString(36).substr(2,6);
+      const levelBadge = p.schoolLevel && p.schoolLevel !== 'all'
+        ? `<span style="font-size:0.4rem;background:rgba(99,102,241,0.3);border:1px solid #6366f1;border-radius:6px;padding:2px 6px;margin-left:4px;">🎓 ${SCHOOL_LABELS[p.schoolLevel]||p.schoolLevel}</span>`
+        : '';
       
       div.innerHTML = `
         <div class="lb-rank">${showRankIcon && rank <= 3 ? rankIcons[rank-1] : '#' + rank}</div>
         <canvas id="${avatarCanvasId}" class="mini-avatar-canvas lb-avatar" width="36" height="36" style="${p.avatarData ? '' : 'display:none;'}"></canvas>
         <div class="lb-info">
-          <div class="lb-name">${p.username}${isMe ? ' <span style="color:#10b981;">◀ toi</span>' : ''}${p.isAdmin ? ' <span style="font-size:0.45rem;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;padding:3px 8px;border-radius:8px;font-weight:bold;box-shadow:0 0 8px rgba(251,191,36,0.6);">👑 ADMIN</span>' : ''}${p.isBanned ? ' <span style="font-size:0.4rem;background:#ef4444;color:#fff;padding:2px 5px;border-radius:5px;">🚫 BANNI</span>' : ''}</div>
+          <div class="lb-name">${p.username}${isMe ? ' <span style="color:#10b981;">◀ toi</span>' : ''}${p.isAdmin ? ' <span style="font-size:0.45rem;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;padding:3px 8px;border-radius:8px;font-weight:bold;box-shadow:0 0 8px rgba(251,191,36,0.6);">👑 ADMIN</span>' : ''}${p.isBanned ? ' <span style="font-size:0.4rem;background:#ef4444;color:#fff;padding:2px 5px;border-radius:5px;">🚫 BANNI</span>' : ''}${levelBadge}</div>
           <div style="margin:3px 0;">${badgesHtml}</div>
           <div class="lb-stats">Niv.${p.level||1} &nbsp;•&nbsp; ${p.questionsAnswered||0} Q &nbsp;•&nbsp; ${p.bossesDefeated||0} boss &nbsp;•&nbsp; ⏱️${formatPlayTime(p.playTime)}</div>
         </div>
@@ -4014,17 +5073,44 @@ function updateHomeScreen() {
   if (!player) return;
   document.getElementById('homeUsername').textContent = player.username;
   document.getElementById('homeLevel').textContent = player.level;
-  document.getElementById('homeCoins').textContent = player.coins;
-  document.getElementById('homeXP').textContent = player.xp;
+  document.getElementById('homeCoins').textContent = (player.coins || 0).toLocaleString();
+  document.getElementById('homeXP').textContent = (player.xp || 0).toLocaleString();
 
-  // Mini avatar à l'accueil
-  const homeCanvas = document.getElementById('homeAvatarCanvas');
-  if (player.avatarData && drawMiniAvatar(homeCanvas, player.avatarData, 40)) {
-    homeCanvas.style.display = 'inline-block';
+  // Barre XP
+  const xpNeeded = player.level * 100;
+  const xpPct = Math.min(100, Math.round(((player.xp || 0) / xpNeeded) * 100));
+  const xpFill = document.getElementById('homeXpFill');
+  const xpLabel = document.getElementById('homeXpLabel');
+  if (xpFill) xpFill.style.width = xpPct + '%';
+  if (xpLabel) xpLabel.textContent = `${player.xp || 0} / ${xpNeeded} XP`;
+
+  // Streak
+  const streakChip = document.getElementById('homeStreakChip');
+  const streakVal = document.getElementById('homeStreakVal');
+  if (player.loginStreak && player.loginStreak > 1) {
+    if (streakChip) streakChip.style.display = 'flex';
+    if (streakVal) streakVal.textContent = player.loginStreak + 'j';
   } else {
-    homeCanvas.style.display = 'none';
+    if (streakChip) streakChip.style.display = 'none';
   }
 
+  // Ligue
+  const league = getLeague(player.maxLevel || 1);
+  const leagueLine = document.getElementById('homeLeagueLine');
+  if (leagueLine) leagueLine.textContent = `${league.emoji} Ligue ${league.name}  •  Carte max: ${player.maxLevel || 1}`;
+
+  // Mini avatar
+  const homeCanvas = document.getElementById('homeAvatarCanvas');
+  const homeEmoji  = document.getElementById('homeAvatarEmoji');
+  if (player.avatarData && homeCanvas && drawMiniAvatar(homeCanvas, player.avatarData, 50)) {
+    homeCanvas.style.display = 'block';
+    if (homeEmoji) homeEmoji.style.display = 'none';
+  } else {
+    if (homeCanvas) homeCanvas.style.display = 'none';
+    if (homeEmoji) homeEmoji.style.display = 'block';
+  }
+
+  // Badges
   let badgesHTML = '';
   if (player.isAdmin) badgesHTML += '<div class="badge admin">👑 ADMIN</div>';
   (player.badges || []).forEach(b => {
@@ -4033,26 +5119,20 @@ function updateHomeScreen() {
     else if (b === '🎖️ OJ') cls = 'badge oj';
     badgesHTML += `<div class="${cls}">${b}</div>`;
   });
-  
-  // Prestige badge
   if (player.prestigeLevel) badgesHTML += `<span class="prestige-badge">⭐ Prestige ${player.prestigeLevel}</span>`;
-  
-  // League badge
-  const league = getLeague(player.maxLevel || 1);
   badgesHTML += `<span class="league-badge ${league.class}">${league.emoji} ${league.name}</span>`;
-  
   document.getElementById('homePlayerBadges').innerHTML = badgesHTML;
 
   const firebaseStatus = document.getElementById('firebaseStatus');
-  if (firebaseReady && currentUserId && !currentUserId.startsWith('local_')) {
-    firebaseStatus.innerHTML = '<span style="color:#10b981;">🔥 Firebase actif — sauvegarde cloud toutes les 30s</span>';
-    firebaseStatus.style.display = 'block';
-  } else {
-    firebaseStatus.innerHTML = '<span style="color:#f59e0b;">💾 Mode local — configure Firebase pour le cloud</span>';
+  if (firebaseStatus) {
+    if (firebaseReady && currentUserId && !currentUserId.startsWith('local_')) {
+      firebaseStatus.innerHTML = '<span style="color:#10b981;">🔥 Firebase actif — sauvegarde cloud</span>';
+    } else {
+      firebaseStatus.innerHTML = '<span style="color:#f59e0b;">💾 Mode local — configure Firebase pour le cloud</span>';
+    }
     firebaseStatus.style.display = 'block';
   }
-  
-  // Afficher le bouton réglages
+
   const gearBtn = document.getElementById('settingsGearBtn');
   if (gearBtn) gearBtn.style.display = 'block';
 
@@ -4327,6 +5407,30 @@ async function openAdminMsgPanel() {
         <button class="danger" style="margin:0;" onclick="document.getElementById('adminMsgOverlay').remove()">✖</button>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- TYPE DE MESSAGE -->
+        <div>
+          <div style="font-size:0.6rem;color:#9ca3af;margin-bottom:10px;">📢 Type de message</div>
+          <div style="display:flex;gap:10px;">
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="amsg_type" value="normal" checked style="display:none;" onchange="adminMsgTypeChanged(this)">
+              <div id="amsgTypeNormal" style="border:3px solid #0ea5e9;border-radius:12px;padding:12px;text-align:center;background:rgba(14,165,233,0.2);transition:all 0.2s;">
+                <div style="font-size:1.2rem;margin-bottom:4px;">📨</div>
+                <div style="font-size:0.5rem;color:#e2e8f0;">Message normal</div>
+                <div style="font-size:0.4rem;color:#9ca3af;margin-top:3px;">Info, annonce...</div>
+              </div>
+            </label>
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="amsg_type" value="update" style="display:none;" onchange="adminMsgTypeChanged(this)">
+              <div id="amsgTypeUpdate" style="border:3px solid rgba(99,102,241,0.4);border-radius:12px;padding:12px;text-align:center;background:rgba(99,102,241,0.05);transition:all 0.2s;">
+                <div style="font-size:1.2rem;margin-bottom:4px;">🚀</div>
+                <div style="font-size:0.5rem;color:#e2e8f0;">Nouvelle mise à jour</div>
+                <div style="font-size:0.4rem;color:#9ca3af;margin-top:3px;">Avec animation spéciale</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div>
           <div style="font-size:0.6rem;color:#9ca3af;margin-bottom:6px;">🎯 Destinataire</div>
           <select id="amsg_target" style="width:100%;background:#000;color:#fff;border:2px solid #0ea5e9;border-radius:8px;padding:10px;font-family:'Press Start 2P';font-size:0.6rem;">
@@ -4349,11 +5453,26 @@ async function openAdminMsgPanel() {
   document.body.appendChild(overlay);
 }
 
+function adminMsgTypeChanged(radio) {
+  const normalBox = document.getElementById('amsgTypeNormal');
+  const updateBox = document.getElementById('amsgTypeUpdate');
+  if (!normalBox || !updateBox) return;
+  if (radio.value === 'normal') {
+    normalBox.style.cssText = 'border:3px solid #0ea5e9;border-radius:12px;padding:12px;text-align:center;background:rgba(14,165,233,0.2);transition:all 0.2s;';
+    updateBox.style.cssText = 'border:3px solid rgba(99,102,241,0.4);border-radius:12px;padding:12px;text-align:center;background:rgba(99,102,241,0.05);transition:all 0.2s;';
+  } else {
+    normalBox.style.cssText = 'border:3px solid rgba(14,165,233,0.4);border-radius:12px;padding:12px;text-align:center;background:rgba(14,165,233,0.05);transition:all 0.2s;';
+    updateBox.style.cssText = 'border:3px solid #6366f1;border-radius:12px;padding:12px;text-align:center;background:rgba(99,102,241,0.2);box-shadow:0 0 15px rgba(99,102,241,0.3);transition:all 0.2s;';
+  }
+}
+
 // ----- ADMIN : envoyer le message -----
 async function sendAdminMsg() {
   const target = document.getElementById('amsg_target').value;
   const subject = document.getElementById('amsg_subject').value.trim() || 'Message de l\'équipe Admin';
   const body = document.getElementById('amsg_body').value.trim();
+  const typeRadio = document.querySelector('input[name="amsg_type"]:checked');
+  const msgType = typeRadio ? typeRadio.value : 'normal'; // 'normal' ou 'update'
 
   if (!body) { alert('⚠️ Le message est vide !'); return; }
 
@@ -4362,18 +5481,16 @@ async function sendAdminMsg() {
     body,
     from: player.username,
     ts: Date.now(),
-    target // 'all' ou uid
+    target, // 'all' ou uid
+    msgType  // 'normal' ou 'update'
   };
 
   try {
     if (target === 'all') {
-      // Message global lisible par tous → /adminMessages/global/
       await database.ref('adminMessages/global').push(msgData);
       alert(`✅ Message envoyé à tous les joueurs !`);
     } else {
-      // Message privé → /adminMessages/private/{uid}/
       await database.ref('adminMessages/private/' + target).push(msgData);
-      // Récupérer le nom du joueur pour l'alerte
       const snap = await database.ref('leaderboard/' + target).once('value');
       const name = snap.val()?.username || target;
       alert(`✅ Message envoyé à ${name} !`);
@@ -4456,11 +5573,23 @@ function showMsgIfUnread(msgId, msg) {
   const subjEl   = document.getElementById('adminMsgScreenSubject');
   const bodyEl   = document.getElementById('adminMsgScreenBody');
   const metaEl   = document.getElementById('adminMsgScreenMeta');
+  const crownEl  = document.getElementById('adminMsgCrown');
+  const titleEl  = document.getElementById('adminMsgTitle');
+  const bannerEl = document.getElementById('adminMsgUpdateBanner');
 
   if (!screen) return;
 
+  const isUpdate = msg.msgType === 'update';
   const d = new Date(msg.ts);
   const dateStr = d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+
+  // Appliquer le style selon le type
+  screen.classList.remove('msg-type-update');
+  if (isUpdate) screen.classList.add('msg-type-update');
+
+  if (crownEl)  crownEl.textContent  = isUpdate ? '🚀' : '📨';
+  if (titleEl)  titleEl.textContent  = isUpdate ? 'MISE À JOUR !' : 'MESSAGE ADMIN';
+  if (bannerEl) bannerEl.style.display = isUpdate ? 'inline-block' : 'none';
 
   fromEl.textContent  = '👑 De : ' + (msg.from || 'Équipe Admin');
   subjEl.textContent  = msg.subject || 'Message de l\'équipe Admin';
@@ -5996,6 +7125,7 @@ const DUEL_WIN_COINS = 150;
 const DUEL_LOSE_COINS = 30;
 const DUEL_WIN_XP = 200;
 const DUEL_LOSE_XP = 50;
+const MAX_ROOM_PLAYERS = 5; // Maximum de joueurs par salon
 
 let currentRoomId = null;
 let currentRoomRef = null;
@@ -6008,13 +7138,14 @@ let duelOppCorrect = 0;
 let duelTimer = null;
 let duelTimeLeft = DUEL_QUESTION_TIME;
 let duelAnswered = false;
-let duelOppUid = null;
+let duelOppUid = null; // Gardé pour compatibilité (1er adversaire)
 let duelOppName = '';
 let duelIsHost = false;
 let roomListener = null;
 let presenceInterval = null;
 let challengeListener = null;
 let mpCurrentTab = 'rooms';
+let roomPlayersData = {}; // Stocke les données de tous les joueurs du salon
 
 // ── Présence en ligne ──────────────────────────────────────────
 function startPresence() {
@@ -6101,18 +7232,22 @@ async function refreshRooms() {
       el.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:0.6rem;padding:30px;">😴 Aucun salon ouvert<br><br>Crée-en un !</div>';
       return;
     }
-    el.innerHTML = rooms.map(([roomId, room]) => `
-      <div class="room-card" onclick="joinRoom('${roomId}')">
-        <div>
-          <div style="font-size:0.65rem;color:#fbbf24;">${room.hostName}</div>
-          <div style="font-size:0.5rem;color:#9ca3af;">Niv. ${room.hostLevel || 1} • ${DUEL_QUESTIONS_COUNT} questions</div>
+    el.innerHTML = rooms.map(([roomId, room]) => {
+      const playerCount = Object.keys(room.players || {}).length;
+      const isFull = playerCount >= MAX_ROOM_PLAYERS;
+      return `
+        <div class="room-card${isFull ? ' full' : ''}" onclick="${isFull ? '' : `joinRoom('${roomId}')`}">
+          <div>
+            <div style="font-size:0.65rem;color:#fbbf24;">🎮 ${room.hostName}</div>
+            <div style="font-size:0.5rem;color:#9ca3af;">Niv. ${room.hostLevel || 1} • ${DUEL_QUESTIONS_COUNT} questions</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="room-status"><div class="status-dot ${isFull ? 'closed' : 'open'}"></div><span style="color:${isFull ? '#ef4444' : '#10b981'};">${isFull ? 'PLEIN' : 'OUVERT'}</span></div>
+            <div style="font-size:0.45rem;color:#9ca3af;">${playerCount}/${MAX_ROOM_PLAYERS} joueurs</div>
+          </div>
         </div>
-        <div style="text-align:right;">
-          <div class="room-status"><div class="status-dot open"></div><span style="color:#10b981;">OUVERT</span></div>
-          <div style="font-size:0.45rem;color:#9ca3af;">1/2 joueurs</div>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   } catch(e) { el.innerHTML = `<div style="color:#ef4444;font-size:0.6rem;text-align:center;padding:20px;">Erreur: ${e.message}</div>`; }
 }
 
@@ -6130,7 +7265,7 @@ async function createRoom() {
     createdAt: Date.now(),
     questions: questions,
     players: {
-      [currentUserId]: { name: player.username, level: player.level || 1, score: 0, correct: 0, ready: false }
+      [currentUserId]: { name: player.username, level: player.level || 1, score: 0, correct: 0, ready: false, finished: false }
     }
   };
 
@@ -6147,18 +7282,24 @@ async function joinRoom(roomId) {
   const snap = await database.ref('rooms/' + roomId).once('value');
   const room = snap.val();
   if (!room || room.status !== 'waiting') { alert('Ce salon n\'est plus disponible !'); refreshRooms(); return; }
+  
+  // Vérifier si le salon est plein
+  const playerCount = Object.keys(room.players || {}).length;
+  if (playerCount >= MAX_ROOM_PLAYERS && room.hostUid !== currentUserId) {
+    alert('Ce salon est plein !'); refreshRooms(); return;
+  }
+  
   if (room.hostUid === currentUserId) { openRoomLobby(roomId, room.questions); return; }
 
+  // Rejoindre le salon (sans le passer en 'ready' — c'est l'hôte qui décide)
   await database.ref(`rooms/${roomId}/players/${currentUserId}`).set({
-    name: player.username, level: player.level || 1, score: 0, correct: 0, ready: false
+    name: player.username, level: player.level || 1, score: 0, correct: 0, ready: false, finished: false
   });
-  await database.ref(`rooms/${roomId}/status`).set('ready');
 
   currentRoomId = roomId;
   duelIsHost = false;
-  duelOppUid = room.hostUid;
-  duelOppName = room.hostName;
-  startDuel(roomId, room.questions);
+  // Ouvrir le lobby d'attente (même vue que l'hôte, mais sans bouton Lancer)
+  openRoomLobby(roomId, room.questions);
 }
 
 async function acceptChallenge(roomId) {
@@ -6170,54 +7311,119 @@ function openRoomLobby(roomId, questions) {
   // Show waiting overlay
   const overlay = document.createElement('div');
   overlay.id = 'lobbyOverlay';
-  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:18000;display:flex;align-items:center;justify-content:center;';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:18000;overflow-y:auto;display:flex;align-items:center;justify-content:center;';
   overlay.innerHTML = `
-    <div style="background:#1a1a2e;border:3px solid #6366f1;border-radius:20px;padding:30px;text-align:center;max-width:400px;width:90%;">
-      <div style="font-size:2rem;margin-bottom:10px;">⚔️</div>
+    <div style="background:#1a1a2e;border:3px solid #6366f1;border-radius:20px;padding:30px;text-align:center;max-width:500px;width:92%;">
+      <div style="font-size:2rem;margin-bottom:10px;">🎮</div>
       <h2 style="color:#818cf8;font-size:0.85rem;margin-bottom:5px;">SALON D'ATTENTE</h2>
-      <div style="font-size:0.55rem;color:#9ca3af;margin-bottom:20px;">Partage ce code : <span style="color:#fbbf24;">${roomId.slice(-6).toUpperCase()}</span></div>
-      <div class="pvp-player-card ready" style="justify-content:center;">
-        <span style="font-size:1.2rem;">👤</span>
-        <span style="font-size:0.65rem;color:#fbbf24;">${player.username}</span>
-        <span style="font-size:0.55rem;color:#10b981;margin-left:auto;">✅ Prêt</span>
-      </div>
-      <div class="pvp-player-card waiting" id="lobbyOppCard" style="justify-content:center;">
-        <span style="font-size:1.2rem;">⏳</span>
-        <span style="font-size:0.65rem;color:#9ca3af;">En attente d'un adversaire...</span>
-      </div>
-      <div style="margin-top:20px;font-size:0.55rem;color:#9ca3af;">
+      <div style="font-size:0.55rem;color:#9ca3af;margin-bottom:5px;">Code du salon : <span style="color:#fbbf24;font-size:0.7rem;">${roomId.slice(-6).toUpperCase()}</span></div>
+      <div style="font-size:0.5rem;color:#6b7280;margin-bottom:20px;">Partage le code pour inviter des amis (max ${MAX_ROOM_PLAYERS} joueurs)</div>
+
+      <!-- Liste des joueurs -->
+      <div id="lobbyPlayersList" style="margin-bottom:20px;"></div>
+
+      <!-- Slots vides -->
+      <div id="lobbyEmptySlots"></div>
+
+      <div style="font-size:0.5rem;color:#9ca3af;margin:12px 0;" id="lobbyStatusMsg">
         <div class="dot-bounce" style="justify-content:center;margin-bottom:8px;"><span></span><span></span><span></span></div>
-        Partage le lien du jeu pour inviter un ami !
+        En attente de joueurs…
       </div>
-      <button class="danger" style="width:100%;margin-top:20px;" onclick="leaveMpLobby(); document.getElementById('lobbyOverlay')?.remove();">✖ Annuler</button>
+
+      ${duelIsHost ? `
+        <button class="gold" id="lobbyStartBtn" style="width:100%;margin-bottom:10px;font-size:0.7rem;" onclick="hostStartGame()" disabled>
+          🚀 Lancer la partie (1/${MAX_ROOM_PLAYERS})
+        </button>
+      ` : `
+        <div style="font-size:0.55rem;color:#9ca3af;padding:10px;background:rgba(99,102,241,0.1);border-radius:8px;margin-bottom:10px;">
+          ⏳ En attente que l'hôte lance la partie…
+        </div>
+      `}
+      <button class="danger" style="width:100%;" onclick="leaveMpLobby(); document.getElementById('lobbyOverlay')?.remove();">✖ Quitter le salon</button>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  // Listen for opponent joining
+  // Écouter les changements du salon en temps réel
   currentRoomRef = database.ref('rooms/' + roomId);
+  if (roomListener) { currentRoomRef.off('value', roomListener); }
   roomListener = currentRoomRef.on('value', snap => {
     const room = snap.val();
-    if (!room) return;
-    if (room.status === 'ready') {
-      // Opponent joined!
-      const players = Object.entries(room.players || {});
-      const opp = players.find(([uid]) => uid !== currentUserId);
-      if (opp) {
-        duelOppUid = opp[0];
-        duelOppName = opp[1].name;
-        const oppCard = document.getElementById('lobbyOppCard');
-        if (oppCard) {
-          oppCard.className = 'pvp-player-card ready';
-          oppCard.innerHTML = `<span style="font-size:1.2rem;">👤</span><span style="font-size:0.65rem;color:#fbbf24;">${duelOppName}</span><span style="font-size:0.55rem;color:#10b981;margin-left:auto;">✅ Prêt</span>`;
-        }
-        setTimeout(() => {
-          document.getElementById('lobbyOverlay')?.remove();
-          startDuel(roomId, room.questions);
-        }, 1000);
+    if (!room) { document.getElementById('lobbyOverlay')?.remove(); return; }
+
+    const players = Object.entries(room.players || {});
+    roomPlayersData = room.players || {};
+
+    // Mettre à jour la liste des joueurs affichés
+    const listEl = document.getElementById('lobbyPlayersList');
+    const slotsEl = document.getElementById('lobbyEmptySlots');
+    if (listEl) {
+      listEl.innerHTML = players.map(([uid, p]) => `
+        <div class="pvp-player-card ready" style="justify-content:space-between;margin:6px 0;">
+          <span style="font-size:1.1rem;">👤</span>
+          <span style="font-size:0.65rem;color:#fbbf24;flex:1;text-align:left;margin-left:10px;">
+            ${p.name} ${uid === room.hostUid ? '<span style="color:#f59e0b;font-size:0.5rem;">👑 Hôte</span>' : ''}
+          </span>
+          <span style="font-size:0.55rem;color:#10b981;">Niv. ${p.level || 1}</span>
+          <span style="font-size:0.55rem;color:#10b981;margin-left:8px;">✅</span>
+        </div>
+      `).join('');
+    }
+    // Slots vides
+    if (slotsEl) {
+      const emptyCount = MAX_ROOM_PLAYERS - players.length;
+      slotsEl.innerHTML = Array(emptyCount).fill(0).map(() => `
+        <div class="pvp-player-card waiting" style="justify-content:center;margin:6px 0;opacity:0.4;">
+          <span style="font-size:1rem;">⏳</span>
+          <span style="font-size:0.6rem;color:#6b7280;margin-left:8px;">En attente d'un joueur…</span>
+        </div>
+      `).join('');
+    }
+
+    // Mettre à jour le bouton Lancer (hôte seulement)
+    const startBtn = document.getElementById('lobbyStartBtn');
+    if (startBtn) {
+      const count = players.length;
+      startBtn.textContent = `🚀 Lancer la partie (${count}/${MAX_ROOM_PLAYERS})`;
+      startBtn.disabled = count < 2; // Minimum 2 joueurs pour jouer
+    }
+
+    // Mettre à jour le message de statut
+    const msgEl = document.getElementById('lobbyStatusMsg');
+    if (msgEl && players.length >= 2) {
+      if (duelIsHost) {
+        msgEl.innerHTML = `<span style="color:#10b981;">✅ ${players.length} joueur(s) prêt(s) — Tu peux lancer !</span>`;
+      } else {
+        msgEl.innerHTML = `<span style="color:#10b981;">✅ ${players.length} joueur(s) connecté(s)</span>`;
       }
     }
+
+    // Si le statut passe à 'playing', tous les joueurs (non-hôte) lancent le jeu
+    if (room.status === 'playing') {
+      // Initialiser les adversaires pour le HUD
+      const opps = players.filter(([uid]) => uid !== currentUserId);
+      if (opps.length > 0) {
+        duelOppUid = opps[0][0];
+        duelOppName = opps.map(([, p]) => p.name).join(', ');
+      }
+      document.getElementById('lobbyOverlay')?.remove();
+      startMultiGame(roomId, room.questions);
+    }
   });
+}
+
+// ── L'hôte lance la partie ─────────────────────────────────────
+async function hostStartGame() {
+  if (!duelIsHost || !currentRoomId || !firebaseReady) return;
+  const snap = await database.ref('rooms/' + currentRoomId).once('value');
+  const room = snap.val();
+  if (!room) return;
+  const count = Object.keys(room.players || {}).length;
+  if (count < 2) { alert('Il faut au moins 2 joueurs pour lancer la partie !'); return; }
+
+  // Passer le statut à 'playing' — tous les listeners vont réagir
+  await database.ref('rooms/' + currentRoomId + '/status').set('playing');
+  // L'hôte démarre aussi le jeu (le listener ci-dessus le gère pour les autres)
 }
 
 // ── Génération de questions duel ───────────────────────────────
@@ -6231,8 +7437,8 @@ function generateDuelQuestions() {
   return qs;
 }
 
-// ── Démarrer le duel ──────────────────────────────────────────
-function startDuel(roomId, questions) {
+// ── Démarrer le jeu multi (tous les joueurs) ──────────────────
+function startMultiGame(roomId, questions) {
   duelQuestions = questions;
   duelCurrentQ = 0;
   duelMyScore = 0;
@@ -6244,26 +7450,51 @@ function startDuel(roomId, questions) {
   showScreen('duelScreen');
   updateDuelHUD();
 
-  // Listen to room for opponent's answers
+  // Écouter les changements de TOUS les joueurs adversaires
   if (roomListener) { database.ref('rooms/' + currentRoomId).off('value', roomListener); roomListener = null; }
   currentRoomRef = database.ref('rooms/' + currentRoomId);
-  roomListener = currentRoomRef.child('players/' + duelOppUid).on('value', snap => {
-    const opp = snap.val();
-    if (!opp) return;
-    duelOppScore = opp.score || 0;
-    duelOppCorrect = opp.correct || 0;
-    updateDuelHUD();
-    // Opponent answered this round
-    if (opp.lastAnsweredQ === duelCurrentQ && !duelAnswered) {
-      showOppAnswered(opp.lastCorrect);
+  roomListener = currentRoomRef.child('players').on('value', snap => {
+    const allPlayers = snap.val() || {};
+    roomPlayersData = allPlayers; // Mettre à jour pour le mini-classement
+    // Mettre à jour mon propre score dans roomPlayersData pour l'affichage
+    if (roomPlayersData[currentUserId]) {
+      roomPlayersData[currentUserId].score = duelMyScore;
+      roomPlayersData[currentUserId].correct = duelMyCorrect;
     }
-    // Check if duel ended
-    if (opp.finished && player._duelFinished) {
+    // Calculer le score total des adversaires (meilleur adversaire pour affichage HUD)
+    let bestOppScore = 0;
+    let bestOppCorrect = 0;
+    let allOppsFinished = true;
+    Object.entries(allPlayers).forEach(([uid, p]) => {
+      if (uid === currentUserId) return;
+      if ((p.score || 0) > bestOppScore) {
+        bestOppScore = p.score || 0;
+        bestOppCorrect = p.correct || 0;
+        duelOppUid = uid;
+        duelOppName = p.name;
+      }
+      if (!p.finished) allOppsFinished = false;
+      // Adversaire a répondu à cette question
+      if (p.lastAnsweredQ === duelCurrentQ && !duelAnswered) {
+        showOppAnswered(p.lastCorrect);
+      }
+    });
+    duelOppScore = bestOppScore;
+    duelOppCorrect = bestOppCorrect;
+    updateDuelHUD();
+
+    // Fin de partie si tout le monde a fini
+    if (allOppsFinished && player._duelFinished) {
       endDuel();
     }
   });
 
   showDuelQuestion();
+}
+
+// ── Démarrer le duel (alias pour compatibilité) ──────────────
+function startDuel(roomId, questions) {
+  startMultiGame(roomId, questions);
 }
 
 function updateDuelHUD() {
@@ -6276,12 +7507,25 @@ function updateDuelHUD() {
   if (myName) myName.textContent = player?.username || '-';
   if (myScore) myScore.textContent = duelMyScore;
   if (myCorrect) myCorrect.textContent = duelMyCorrect + ' corrects';
-  if (oppName) oppName.textContent = duelOppName || 'Adversaire';
+  // Afficher le meilleur adversaire actuel dans le HUD droite
+  if (oppName) oppName.textContent = duelOppName ? (duelOppName.length > 12 ? duelOppName.slice(0, 10) + '…' : duelOppName) : 'Adversaire';
   if (oppScore) oppScore.textContent = duelOppScore;
   if (oppCorrect) oppCorrect.textContent = duelOppCorrect + ' corrects';
-  // Color my score vs opponent's
+  // Colorisation
   if (myScore) myScore.style.color = duelMyScore >= duelOppScore ? '#10b981' : '#ef4444';
-  if (oppScore) oppScore.style.color = duelOppScore > duelMyScore ? '#10b981' : '#ef4444';
+  if (oppScore) oppScore.style.color = duelOppScore > duelMyScore ? '#10b981' : '#9ca3af';
+
+  // Mini-classement temps réel si plusieurs joueurs
+  const liveRanking = document.getElementById('duelLiveRanking');
+  if (liveRanking && Object.keys(roomPlayersData).length > 2) {
+    const sorted = Object.entries(roomPlayersData).sort((a, b) => (b[1].score || 0) - (a[1].score || 0));
+    const rankEmoji = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+    liveRanking.style.display = 'block';
+    liveRanking.innerHTML = '📊 ' + sorted.map(([uid, p], i) => {
+      const isMe = uid === currentUserId;
+      return `<span style="color:${isMe ? '#fbbf24' : '#9ca3af'};${isMe ? 'font-weight:bold;' : ''}">${rankEmoji[i]} ${p.name}: ${p.score || 0}pts</span>`;
+    }).join(' &nbsp;|&nbsp; ');
+  }
 }
 
 // ── Afficher question duel ─────────────────────────────────────
@@ -6446,128 +7690,149 @@ async function finishMyDuel() {
       await database.ref(`rooms/${currentRoomId}/players/${currentUserId}`).update({
         score: duelMyScore, correct: duelMyCorrect, finished: true
       });
-      await database.ref(`rooms/${currentRoomId}/status`).set('finished');
+      // Pas besoin de set 'finished' au global — l'hôte le fera quand tous ont fini
     } catch(e) {}
   }
 
-  // Wait up to 8 seconds for opponent to finish
+  // Attendre jusqu'à 10 secondes que tous les adversaires finissent
   let waited = 0;
   const waitInterval = setInterval(async () => {
     waited += 500;
-    if (waited >= 8000) { clearInterval(waitInterval); endDuel(); return; }
+    if (waited >= 10000) { clearInterval(waitInterval); endDuel(); return; }
     try {
-      const snap = await database.ref(`rooms/${currentRoomId}/players/${duelOppUid}`).once('value');
-      if (snap.val()?.finished) { clearInterval(waitInterval); endDuel(); }
+      const snap = await database.ref(`rooms/${currentRoomId}/players`).once('value');
+      const allP = snap.val() || {};
+      const opps = Object.entries(allP).filter(([uid]) => uid !== currentUserId);
+      if (opps.length > 0 && opps.every(([, p]) => p.finished)) {
+        clearInterval(waitInterval); endDuel();
+      }
     } catch(e) { clearInterval(waitInterval); endDuel(); }
   }, 500);
 }
 
 function endDuel() {
   if (roomListener) { database.ref('rooms/' + currentRoomId).off(); roomListener = null; }
-  const iWon = duelMyScore > duelOppScore;
-  const isDraw = duelMyScore === duelOppScore;
 
-  // Rewards
-  let coinsGain = iWon ? DUEL_WIN_COINS : (isDraw ? 80 : DUEL_LOSE_COINS);
-  let xpGain = iWon ? DUEL_WIN_XP : (isDraw ? 100 : DUEL_LOSE_XP);
-  player.coins += coinsGain;
-  player.xp += xpGain;
-  if (!player.stats) player.stats = {};
-  player.stats.questionsAnswered = (player.stats.questionsAnswered || 0) + duelMyCorrect;
-  if (!player.duelStats) player.duelStats = { wins: 0, losses: 0, draws: 0 };
-  if (iWon) player.duelStats.wins++;
-  else if (isDraw) player.duelStats.draws++;
-  else player.duelStats.losses++;
+  // Récupérer tous les scores finaux depuis Firebase pour afficher le classement complet
+  (async () => {
+    let allPlayers = {};
+    try {
+      if (firebaseReady && currentRoomId) {
+        const snap = await database.ref(`rooms/${currentRoomId}/players`).once('value');
+        allPlayers = snap.val() || {};
+      }
+    } catch(e) {}
 
-  // Save duel history
-  if (!player.duelHistory) player.duelHistory = [];
-  player.duelHistory.unshift({
-    date: new Date().toLocaleDateString('fr-FR'),
-    opp: duelOppName,
-    myScore: duelMyScore,
-    oppScore: duelOppScore,
-    result: iWon ? 'win' : isDraw ? 'draw' : 'loss',
-    coinsGain, xpGain
-  });
-  player.duelHistory = player.duelHistory.slice(0, 20); // Garder 20
+    // Si on n'a pas de données, utiliser ce qu'on sait
+    if (!allPlayers[currentUserId]) {
+      allPlayers[currentUserId] = { name: player.username, score: duelMyScore, correct: duelMyCorrect, finished: true };
+    }
 
-  // Check level up
-  const xpNeeded = player.level * 100;
-  if (player.xp >= xpNeeded) { player.level++; player.xp -= xpNeeded; checkBadges(); checkTalentPoints(); }
+    // Trier par score décroissant
+    const sorted = Object.entries(allPlayers).sort((a, b) => (b[1].score || 0) - (a[1].score || 0));
+    const myRank = sorted.findIndex(([uid]) => uid === currentUserId) + 1;
+    const iWon = myRank === 1;
+    const totalPlayers = sorted.length;
+    const isDraw = sorted.filter(([, p]) => p.score === duelMyScore).length > 1 && myRank === 1;
 
-  player._duelFinished = false;
-  savePlayer();
+    // Récompenses selon le classement
+    let coinsGain, xpGain;
+    if (myRank === 1) { coinsGain = DUEL_WIN_COINS; xpGain = DUEL_WIN_XP; }
+    else if (myRank === 2) { coinsGain = 80; xpGain = 120; }
+    else { coinsGain = DUEL_LOSE_COINS; xpGain = DUEL_LOSE_XP; }
 
-  // Clean up room (host only)
-  if (duelIsHost && firebaseReady && currentRoomId) {
-    setTimeout(() => database.ref('rooms/' + currentRoomId).remove().catch(()=>{}), 5000);
-  }
-  currentRoomId = null;
+    player.coins += coinsGain;
+    player.xp += xpGain;
+    if (!player.stats) player.stats = {};
+    player.stats.questionsAnswered = (player.stats.questionsAnswered || 0) + duelMyCorrect;
+    if (!player.duelStats) player.duelStats = { wins: 0, losses: 0, draws: 0 };
+    if (iWon) player.duelStats.wins++;
+    else if (isDraw) player.duelStats.draws++;
+    else player.duelStats.losses++;
 
-  showDuelResult(iWon, isDraw, coinsGain, xpGain);
+    // Sauvegarder dans l'historique
+    const oppNames = sorted.filter(([uid]) => uid !== currentUserId).map(([, p]) => p.name).join(', ');
+    if (!player.duelHistory) player.duelHistory = [];
+    player.duelHistory.unshift({
+      date: new Date().toLocaleDateString('fr-FR'),
+      opp: oppNames || duelOppName,
+      myScore: duelMyScore,
+      oppScore: sorted[0] && sorted[0][0] !== currentUserId ? (sorted[0][1].score || 0) : (sorted[1] ? sorted[1][1].score || 0 : 0),
+      result: iWon ? 'win' : isDraw ? 'draw' : 'loss',
+      coinsGain, xpGain
+    });
+    player.duelHistory = player.duelHistory.slice(0, 20);
 
-  // Win confetti
-  if (iWon) spawnConfetti();
+    // Level up check
+    const xpNeeded = player.level * 100;
+    if (player.xp >= xpNeeded) { player.level++; player.xp -= xpNeeded; checkBadges(); checkTalentPoints(); }
 
-  // Update quests
-  updateQuestProgress('questionsAnswered', duelMyCorrect);
+    player._duelFinished = false;
+    savePlayer();
+
+    // Clean up room (host only)
+    if (duelIsHost && firebaseReady && currentRoomId) {
+      setTimeout(() => database.ref('rooms/' + currentRoomId).remove().catch(()=>{}), 5000);
+    }
+    currentRoomId = null;
+
+    showDuelResult(iWon, isDraw, coinsGain, xpGain, sorted, myRank);
+    if (iWon) spawnConfetti();
+    updateQuestProgress('questionsAnswered', duelMyCorrect);
+  })();
 }
 
-function showDuelResult(iWon, isDraw, coinsGain, xpGain) {
+function showDuelResult(iWon, isDraw, coinsGain, xpGain, sorted, myRank) {
   const titleEl = document.getElementById('duelResultTitle');
   const cardsEl = document.getElementById('duelResultCards');
   const rewardsEl = document.getElementById('duelRewardsBox');
 
+  const rankEmoji = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+  const resultMsg = myRank === 1 ? '🏆 VICTOIRE !' : myRank === 2 ? '🥈 2ÈME PLACE !' : `💀 ${myRank}ÈME PLACE`;
+
   if (titleEl) {
-    titleEl.textContent = iWon ? '🏆 VICTOIRE !' : isDraw ? '🤝 ÉGALITÉ !' : '💀 DÉFAITE !';
-    titleEl.style.color = iWon ? '#fbbf24' : isDraw ? '#818cf8' : '#ef4444';
+    titleEl.textContent = resultMsg;
+    titleEl.style.color = myRank === 1 ? '#fbbf24' : myRank === 2 ? '#9ca3af' : '#ef4444';
   }
 
-  const maxScore = Math.max(duelMyScore, duelOppScore, 1);
-  const myPct = Math.round(duelMyScore / maxScore * 100);
-  const oppPct = Math.round(duelOppScore / maxScore * 100);
-
-  if (cardsEl) cardsEl.innerHTML = `
-    <div class="pvp-player-card ${iWon ? 'winner' : isDraw ? '' : 'loser'}">
-      <div class="pvp-info">
-        <div class="pvp-name">👤 ${player.username} ${iWon ? '🏆' : isDraw ? '🤝' : ''}</div>
-        <div class="pvp-stats">${duelMyCorrect}/${DUEL_QUESTIONS_COUNT} correctes</div>
-        <div style="margin-top:6px;">
-          <div style="height:8px;background:rgba(0,0,0,0.4);border-radius:4px;overflow:hidden;width:100%;">
-            <div class="result-bar" style="background:${iWon?'#10b981':'#6366f1'};width:0%;" data-pct="${myPct}"></div>
+  if (cardsEl) {
+    const maxScore = Math.max(...(sorted || []).map(([, p]) => p.score || 0), 1);
+    cardsEl.innerHTML = (sorted || []).map(([uid, p], idx) => {
+      const isMe = uid === currentUserId;
+      const pct = Math.round((p.score || 0) / maxScore * 100);
+      const rank = idx + 1;
+      return `
+        <div class="pvp-player-card ${rank === 1 ? 'winner' : isMe ? 'ready' : 'loser'}" style="${isMe ? 'border-color:#6366f1;background:rgba(99,102,241,0.15);' : ''}">
+          <div style="font-size:1.5rem;min-width:36px;">${rankEmoji[idx] || (idx+1)+'.'}</div>
+          <div class="pvp-info" style="flex:1;">
+            <div class="pvp-name">${isMe ? '👤' : '🤖'} ${p.name} ${isMe ? '<span style="color:#818cf8;font-size:0.5rem;">(Toi)</span>' : ''}</div>
+            <div class="pvp-stats">${p.correct || 0}/${DUEL_QUESTIONS_COUNT} correctes</div>
+            <div style="margin-top:5px;">
+              <div style="height:6px;background:rgba(0,0,0,0.4);border-radius:4px;overflow:hidden;width:100%;">
+                <div class="result-bar" style="background:${rank===1?'#fbbf24':isMe?'#6366f1':'#374151'};width:0%;" data-pct="${pct}"></div>
+              </div>
+            </div>
           </div>
+          <div class="pvp-score" style="color:${rank===1?'#fbbf24':isMe?'#818cf8':'#9ca3af'}">${p.score || 0} pts</div>
         </div>
+      `;
+    }).join('') + `
+      <div style="text-align:center;margin-top:10px;">
+        <div style="font-size:0.55rem;color:#9ca3af;">📊 Stats: ${player.duelStats?.wins || 0}V / ${player.duelStats?.draws || 0}N / ${player.duelStats?.losses || 0}D</div>
       </div>
-      <div class="pvp-score">${duelMyScore} pts</div>
-    </div>
-    <div class="vs-divider">VS</div>
-    <div class="pvp-player-card ${!iWon && !isDraw ? 'winner' : isDraw ? '' : 'loser'}">
-      <div class="pvp-info">
-        <div class="pvp-name">🤖 ${duelOppName} ${!iWon && !isDraw ? '🏆' : ''}</div>
-        <div class="pvp-stats">${duelOppCorrect}/${DUEL_QUESTIONS_COUNT} correctes</div>
-        <div style="margin-top:6px;">
-          <div style="height:8px;background:rgba(0,0,0,0.4);border-radius:4px;overflow:hidden;width:100%;">
-            <div class="result-bar" style="background:${!iWon && !isDraw?'#10b981':'#ef4444'};width:0%;" data-pct="${oppPct}"></div>
-          </div>
-        </div>
-      </div>
-      <div class="pvp-score">${duelOppScore} pts</div>
-    </div>
-    <div style="text-align:center;margin-top:10px;">
-      <div style="font-size:0.55rem;color:#9ca3af;">📊 Stats duel: ${player.duelStats.wins}V / ${player.duelStats.draws}N / ${player.duelStats.losses}D</div>
-    </div>
-  `;
+    `;
+  }
 
   if (rewardsEl) rewardsEl.innerHTML = `
-    <div style="font-size:0.65rem;color:#fbbf24;margin-bottom:8px;">🎁 RÉCOMPENSES</div>
+    <div style="font-size:0.65rem;color:#fbbf24;margin-bottom:8px;">🎁 RÉCOMPENSES (${myRank === 1 ? '1ère place' : myRank === 2 ? '2ème place' : 'participation'})</div>
     <div>💰 +${coinsGain} pièces &nbsp;&nbsp; ✨ +${xpGain} XP</div>
   `;
 
   showScreen('duelResultScreen');
 
-  // Animate bars after render
   setTimeout(() => {
     document.querySelectorAll('.result-bar[data-pct]').forEach(bar => {
+      bar.style.transition = 'width 0.8s ease';
       bar.style.width = bar.dataset.pct + '%';
     });
   }, 200);
@@ -6614,10 +7879,8 @@ async function challengePlayer(targetUid, targetName) {
     status: 'waiting',
     createdAt: Date.now(),
     questions: questions,
-    players: { [currentUserId]: { name: player.username, level: player.level || 1, score: 0, correct: 0, ready: false } }
+    players: { [currentUserId]: { name: player.username, level: player.level || 1, score: 0, correct: 0, ready: false, finished: false } }
   });
-
-  // Send challenge notification
   await database.ref(`challenges/${targetUid}`).push({
     fromUid: currentUserId,
     fromName: player.username,
@@ -6675,6 +7938,7 @@ function leaveMpLobby() {
   currentRoomId = null;
   duelIsHost = false;
   player._duelFinished = false;
+  roomPlayersData = {};
   clearInterval(duelTimer);
   document.getElementById('lobbyOverlay')?.remove();
 }
@@ -7466,5 +8730,210 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
+<script>
+// ===== FOND ÉTOILÉ =====
+(function() {
+  const sf = document.getElementById('starfield');
+  if (!sf) return;
+  const COUNT = 80;
+  for (let i = 0; i < COUNT; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = 1 + Math.random() * 2.5;
+    s.style.cssText = [
+      `width:${size}px`, `height:${size}px`,
+      `left:${Math.random()*100}%`, `top:${Math.random()*100}%`,
+      `animation-duration:${2.5 + Math.random()*5}s`,
+      `animation-delay:${Math.random()*6}s`
+    ].join(';');
+    sf.appendChild(s);
+  }
+  // Étoiles filantes occasionnelles
+  function spawnShootingStar() {
+    const s = document.createElement('div');
+    s.className = 'shooting-star';
+    const len = 60 + Math.random() * 120;
+    s.style.cssText = [
+      `width:${len}px`,
+      `left:${Math.random()*80}%`,
+      `top:${Math.random()*60}%`,
+      `transform:rotate(${20+Math.random()*30}deg)`
+    ].join(';');
+    sf.appendChild(s);
+    setTimeout(() => s.remove(), 1400);
+  }
+  setInterval(spawnShootingStar, 3500 + Math.random()*3000);
+})();
+
+// ===== FLASH RÉPONSE =====
+window.triggerAnswerFlash = function(correct) {
+  const el = document.getElementById('answerFlash');
+  if (!el) return;
+  el.className = '';
+  void el.offsetWidth;
+  el.className = correct ? 'correct' : 'wrong';
+  setTimeout(() => { el.className = ''; }, 550);
+};
+
+// ===== HOOKER FLASH SUR LES BONNES/MAUVAISES RÉPONSES =====
+// On observe les changements de classe sur les options de quiz
+(function() {
+  let lastFlash = 0;
+  const obs = new MutationObserver(mutations => {
+    const now = Date.now();
+    if (now - lastFlash < 300) return;
+    mutations.forEach(m => {
+      if (m.type !== 'attributes' || m.attributeName !== 'class') return;
+      const el = m.target;
+      if (el.classList.contains('correct') || el.classList.contains('option-correct')) {
+        lastFlash = now; triggerAnswerFlash(true);
+      } else if (el.classList.contains('wrong') || el.classList.contains('option-wrong') || el.classList.contains('incorrect')) {
+        lastFlash = now; triggerAnswerFlash(false);
+      }
+    });
+  });
+  obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+})();
+
+// ===== TOAST SYSTEM =====
+window.showToast = function(msg, type, duration) {
+  type = type || 'info';
+  duration = duration || 2800;
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('toast-out');
+    setTimeout(() => t.remove(), 280);
+  }, duration);
+};
+
+// ===== LEVEL UP OVERLAY =====
+window.showLevelUpOverlay = function(newLevel) {
+  const el = document.getElementById('levelUpOverlay');
+  const num = document.getElementById('levelUpNum');
+  if (!el) return;
+  if (num) num.textContent = 'Niv. ' + newLevel;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2400);
+};
+
+// ===== BADGE MATIÈRE QUIZ =====
+const SUBJECT_META = {
+  math:     { label: '➕ Mathématiques', cls: 'subject-math' },
+  sciences: { label: '🔬 Sciences',      cls: 'subject-sciences' },
+  histoire: { label: '📜 Histoire',      cls: 'subject-histoire' },
+  geo:      { label: '🌍 Géographie',    cls: 'subject-geo' },
+  culture:  { label: '🎭 Culture',       cls: 'subject-culture' },
+  sports:   { label: '⚽ Sports',        cls: 'subject-sports' },
+  langues:  { label: '💬 Langues',       cls: 'subject-langues' },
+};
+
+function updateSubjectBadge(subject) {
+  let badge = document.getElementById('quizSubjectBadge');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'quizSubjectBadge';
+    const qt = document.getElementById('questionText');
+    if (qt && qt.parentNode) qt.parentNode.insertBefore(badge, qt);
+  }
+  const meta = SUBJECT_META[subject];
+  if (meta) {
+    badge.className = 'subject-badge ' + meta.cls;
+    badge.textContent = meta.label;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// Hook sur showQuestion pour afficher le badge
+const _origRenderChoiceButtons = window.renderChoiceButtons;
+// Observer les changements de questionText pour détecter le sujet actuel
+(function() {
+  const obs = new MutationObserver(() => {
+    if (typeof currentQuestion !== 'undefined' && currentQuestion && currentQuestion.subject) {
+      updateSubjectBadge(currentQuestion.subject);
+    }
+  });
+  const qt = document.getElementById('questionText');
+  if (qt) obs.observe(qt, { childList: true, characterData: true, subtree: true });
+})();
+
+// ===== BACK BUTTON GLOBAL =====
+const SCREENS_WITH_BACK = ['leaderboardScreen','onlinePlayersScreen','settingsScreen',
+  'shopScreen','avatarScreen','multiplayerScreen','duelResultScreen','brevetScreen',
+  'brevetQuizScreen','brevetResultScreen','gameOverScreen'];
+
+function globalBack() {
+  showScreen('homeScreen');
+  if (typeof updateHomeScreen === 'function') updateHomeScreen();
+  if (typeof leaveMpLobby === 'function') {
+    const mp = document.getElementById('multiplayerScreen');
+    if (mp && mp.classList.contains('active')) leaveMpLobby();
+  }
+}
+
+// Surveiller les changements d'écran pour afficher/cacher le bouton back
+(function() {
+  const backBtn = document.getElementById('globalBackBtn');
+  if (!backBtn) return;
+  const obs = new MutationObserver(() => {
+    const active = document.querySelector('.screen.active');
+    if (!active) { backBtn.classList.remove('visible'); return; }
+    const show = SCREENS_WITH_BACK.includes(active.id);
+    backBtn.classList.toggle('visible', show);
+  });
+  obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+})();
+
+// ===== HOOK LEVEL UP POUR OVERLAY + TOAST =====
+(function() {
+  // Patch playLevelUpSound pour aussi montrer l'overlay
+  const origLUS = window.playLevelUpSound;
+  window.playLevelUpSound = function() {
+    if (typeof origLUS === 'function') origLUS();
+    if (typeof player !== 'undefined' && player) {
+      showLevelUpOverlay(player.level);
+      showToast('⭐ NIVEAU ' + player.level + ' !', 'gold', 3000);
+    }
+  };
+})();
+
+// ===== ANIMATION PRESSION BOUTONS =====
+(function() {
+  function addPressEffect(btn) {
+    btn.addEventListener('pointerdown', function() { this.classList.add('btn-press'); });
+    btn.addEventListener('pointerup',   function() { this.classList.remove('btn-press'); });
+    btn.addEventListener('pointerleave',function() { this.classList.remove('btn-press'); });
+    btn.addEventListener('pointercancel',function(){ this.classList.remove('btn-press'); });
+  }
+  document.querySelectorAll('button').forEach(addPressEffect);
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.addedNodes.forEach(function(node) {
+        if (node.nodeType !== 1) return;
+        if (node.tagName === 'BUTTON') addPressEffect(node);
+        node.querySelectorAll && node.querySelectorAll('button').forEach(addPressEffect);
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+
+// Patch savePlayer/manualSave pour toast de confirmation
+(function() {
+  const origManual = window.manualSave;
+  window.manualSave = async function() {
+    if (typeof origManual === 'function') await origManual();
+    showToast('💾 Sauvegarde réussie !', 'success', 2000);
+  };
+})();
+</script>
 </body>
 </html>
