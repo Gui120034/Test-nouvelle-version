@@ -1204,52 +1204,83 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 #autosaveIndicator.show { opacity: 1; }
 
 /* ===== MESSAGERIE ADMIN ===== */
-#adminMsgBanner {
+#adminMsgScreen {
   position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 18000;
-  max-width: 420px;
-  width: calc(100% - 40px);
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-  border: 3px solid #fbbf24;
-  border-radius: 18px;
-  padding: 18px 20px;
-  box-shadow: 0 0 40px rgba(251,191,36,0.5);
-  font-family: 'Press Start 2P', cursive;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0a0a1e;
   display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99998;
+  padding: 30px;
+  text-align: center;
+  overflow-y: auto;
 }
-#adminMsgBanner.show { display: block; animation: msgSlideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-@keyframes msgSlideUp {
-  from { transform: translateX(-50%) translateY(100px); opacity: 0; }
-  to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
-}
-.admin-msg-header {
-  display: flex; align-items: center; gap: 10px;
+#adminMsgScreen.show { display: flex; }
+#adminMsgScreen .msg-crown {
+  font-size: 3rem;
   margin-bottom: 10px;
+  animation: eventPulse 1.5s infinite;
 }
-.admin-msg-crown { font-size: 1.3rem; }
-.admin-msg-title { font-size: 0.55rem; color: #fbbf24; flex: 1; }
-.admin-msg-close {
-  background: rgba(239,68,68,0.4); border: none; border-radius: 8px;
-  color: #fff; font-size: 0.5rem; padding: 4px 8px; cursor: pointer;
+#adminMsgScreen h1 {
+  color: #fbbf24;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  animation: eventPulse 1.5s infinite;
   font-family: 'Press Start 2P', cursive;
 }
-.admin-msg-body {
-  font-size: 0.6rem; color: #e2e8f0; line-height: 1.7;
-  background: rgba(255,255,255,0.05); border-radius: 10px;
-  padding: 12px; margin-bottom: 12px; border: 1px solid rgba(251,191,36,0.2);
-  white-space: pre-wrap; word-break: break-word;
+#adminMsgScreen .msg-subtitle {
+  font-size: 0.5rem;
+  color: #9ca3af;
+  margin-bottom: 25px;
+  font-family: 'Press Start 2P', cursive;
 }
-.admin-msg-meta { font-size: 0.45rem; color: #9ca3af; margin-bottom: 10px; }
-.admin-msg-read-btn {
-  width: 100%; padding: 10px; font-size: 0.55rem;
+#adminMsgScreen .msg-card {
+  background: rgba(251,191,36,0.08);
+  border: 2px solid #fbbf24;
+  border-radius: 16px;
+  padding: 25px 30px;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto 25px;
+  text-align: left;
+}
+#adminMsgScreen .msg-subject {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.75rem;
+  color: #fbbf24;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(251,191,36,0.3);
+}
+#adminMsgScreen .msg-body {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  color: #e2e8f0;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 16px;
+}
+#adminMsgScreen .msg-meta {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.45rem;
+  color: #9ca3af;
+}
+#adminMsgScreen .msg-read-btn {
   background: linear-gradient(135deg, #10b981, #059669);
-  border: none; border-radius: 10px; color: #fff;
-  cursor: pointer; font-family: 'Press Start 2P', cursive;
+  border: none; border-radius: 12px;
+  color: #fff; font-family: 'Press Start 2P', cursive;
+  font-size: 0.65rem; padding: 14px 30px;
+  cursor: pointer; margin-top: 5px;
+  transition: all 0.3s;
+  box-shadow: 0 0 20px rgba(16,185,129,0.4);
 }
-.admin-msg-read-btn:hover { opacity: 0.85; }
+#adminMsgScreen .msg-read-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(16,185,129,0.6);
+}
 #adminMsgDot {
   position: fixed; top: 58px; left: 16px; z-index: 17000;
   width: 14px; height: 14px; border-radius: 50%;
@@ -1276,18 +1307,19 @@ body.theme-neon .stat-value { color: #00ff41 !important; }
 <div id="autosaveIndicator">⚙️...</div>
 
 <!-- POINT DE NOTIFICATION MESSAGE ADMIN -->
-<div id="adminMsgDot" title="Nouveau message admin" onclick="openAdminMsgInbox()">📨</div>
+<div id="adminMsgDot" title="Messages non lus" onclick="openAdminMsgInbox()">📨</div>
 
-<!-- BANNIÈRE MESSAGE ADMIN -->
-<div id="adminMsgBanner">
-  <div class="admin-msg-header">
-    <span class="admin-msg-crown">👑</span>
-    <span class="admin-msg-title">MESSAGE DE L'ÉQUIPE ADMIN</span>
-    <button class="admin-msg-close" onclick="closeAdminMsgBanner()">✖</button>
+<!-- ÉCRAN PLEIN ÉCRAN MESSAGE ADMIN (comme le ban) -->
+<div id="adminMsgScreen">
+  <div class="msg-crown">📨</div>
+  <h1>MESSAGE ADMIN</h1>
+  <div class="msg-subtitle" id="adminMsgScreenFrom"></div>
+  <div class="msg-card">
+    <div class="msg-subject" id="adminMsgScreenSubject"></div>
+    <div class="msg-body" id="adminMsgScreenBody"></div>
+    <div class="msg-meta" id="adminMsgScreenMeta"></div>
   </div>
-  <div class="admin-msg-body" id="adminMsgBannerText"></div>
-  <div class="admin-msg-meta" id="adminMsgBannerMeta"></div>
-  <button class="admin-msg-read-btn" onclick="markCurrentMsgRead()">✅ Marquer comme lu</button>
+  <button class="msg-read-btn" onclick="markCurrentMsgRead()">✅ J'ai lu ce message</button>
 </div>
 
 <!-- INDICATEUR MUSICAL -->
@@ -4374,25 +4406,30 @@ function showMsgIfUnread(msgId, msg) {
   try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
   if (read.includes(msgId)) return;
 
-  // Afficher la bannière
   _currentBannerMsgId = msgId;
-  const banner = document.getElementById('adminMsgBanner');
-  const textEl = document.getElementById('adminMsgBannerText');
-  const metaEl = document.getElementById('adminMsgBannerMeta');
 
-  if (!banner || !textEl) return;
+  const screen   = document.getElementById('adminMsgScreen');
+  const fromEl   = document.getElementById('adminMsgScreenFrom');
+  const subjEl   = document.getElementById('adminMsgScreenSubject');
+  const bodyEl   = document.getElementById('adminMsgScreenBody');
+  const metaEl   = document.getElementById('adminMsgScreenMeta');
+
+  if (!screen) return;
 
   const d = new Date(msg.ts);
-  const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  const dateStr = d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
 
-  textEl.innerHTML = `<strong style="color:#fbbf24;font-size:0.55rem;">${escapeHtml(msg.subject)}</strong>\n\n${escapeHtml(msg.body)}`;
-  metaEl.textContent = `👑 ${msg.from}  •  ${dateStr}`;
-  banner.classList.add('show');
+  fromEl.textContent  = '👑 De : ' + (msg.from || 'Équipe Admin');
+  subjEl.textContent  = msg.subject || 'Message de l\'équipe Admin';
+  bodyEl.textContent  = msg.body || '';
+  metaEl.textContent  = dateStr + (msg.target === 'all' ? '  •  🌍 Message global' : '  •  📩 Message privé');
+
+  screen.classList.add('show');
   document.getElementById('adminMsgDot').classList.add('show');
 }
 
 function closeAdminMsgBanner() {
-  document.getElementById('adminMsgBanner').classList.remove('show');
+  document.getElementById('adminMsgScreen').classList.remove('show');
 }
 
 function markCurrentMsgRead() {
@@ -4402,7 +4439,7 @@ function markCurrentMsgRead() {
   try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
   if (!read.includes(_currentBannerMsgId)) read.push(_currentBannerMsgId);
   localStorage.setItem(readKey, JSON.stringify(read));
-  closeAdminMsgBanner();
+  document.getElementById('adminMsgScreen').classList.remove('show');
   updateMsgDot();
   _currentBannerMsgId = null;
 }
