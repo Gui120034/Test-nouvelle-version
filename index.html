@@ -2080,6 +2080,8 @@ async function login() {
     startEventListener(); // Écouter les événements Firebase en temps réel
     showScreen('homeScreen');
     updateHomeScreen();
+    startMsgListener();
+    updateMsgDot();
     return;
   }
 
@@ -2133,6 +2135,8 @@ async function login() {
           alert('🎉 Compte créé avec succès !');
           showScreen('homeScreen');
           updateHomeScreen();
+          startMsgListener();
+          updateMsgDot();
         } catch (createErr) {
           resetBtn();
           alert('❌ Erreur création : ' + createErr.message);
@@ -2161,6 +2165,8 @@ async function login() {
     resetBtn();
     showScreen('homeScreen');
     updateHomeScreen();
+    startMsgListener();
+    updateMsgDot();
 
   } catch (error) {
     console.error('Erreur login inattendue:', error);
@@ -4380,24 +4386,61 @@ async function sendAdminMsg() {
 
 // ----- JOUEUR : écouter les messages en temps réel -----
 function startMsgListener() {
-  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) return;
-  if (player?.isAdmin) return; // Les admins n'ont pas besoin de voir les messages
+  if (!firebaseReady || !currentUserId || currentUserId.startsWith('local_')) {
+    console.log('[MSG] startMsgListener: conditions non remplies', {firebaseReady, currentUserId});
+    return;
+  }
+  if (player?.isAdmin) return;
 
-  // Messages globaux
+  console.log('[MSG] Démarrage listener messages pour:', currentUserId);
+
+  // 1. Afficher immédiatement les messages non lus existants
+  _checkOldUnreadMessages();
+
+  // 2. Écouter les nouveaux messages en temps réel
   database.ref('adminMessages/global').on('child_added', (snap) => {
     const msg = snap.val();
+    console.log('[MSG] Nouveau message global reçu:', snap.key, msg);
     if (!msg) return;
-    const msgId = 'global_' + snap.key;
-    showMsgIfUnread(msgId, msg);
+    showMsgIfUnread('global_' + snap.key, msg);
+  }, (err) => {
+    console.error('[MSG] Erreur lecture adminMessages/global:', err.message);
   });
 
-  // Messages privés destinés à ce joueur
   database.ref('adminMessages/private/' + currentUserId).on('child_added', (snap) => {
     const msg = snap.val();
+    console.log('[MSG] Nouveau message privé reçu:', snap.key, msg);
     if (!msg) return;
-    const msgId = 'private_' + snap.key;
-    showMsgIfUnread(msgId, msg);
+    showMsgIfUnread('private_' + snap.key, msg);
+  }, (err) => {
+    console.error('[MSG] Erreur lecture adminMessages/private:', err.message);
   });
+}
+
+async function _checkOldUnreadMessages() {
+  try {
+    const [gSnap, pSnap] = await Promise.all([
+      database.ref('adminMessages/global').once('value'),
+      database.ref('adminMessages/private/' + currentUserId).once('value')
+    ]);
+    const readKey = 'schoolmesReadMsg_' + currentUserId;
+    let read = [];
+    try { read = JSON.parse(localStorage.getItem(readKey) || '[]'); } catch(e) {}
+
+    const gData = gSnap.val() || {};
+    const pData = pSnap.val() || {};
+
+    // Trouver le premier message non lu (le plus récent)
+    const allMsgs = [];
+    Object.entries(gData).forEach(([k, v]) => allMsgs.push({ id: 'global_' + k, ...v }));
+    Object.entries(pData).forEach(([k, v]) => allMsgs.push({ id: 'private_' + k, ...v }));
+    allMsgs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    const firstUnread = allMsgs.find(m => !read.includes(m.id));
+    if (firstUnread) {
+      showMsgIfUnread(firstUnread.id, firstUnread);
+    }
+  } catch(e) { /* silencieux */ }
 }
 
 function showMsgIfUnread(msgId, msg) {
